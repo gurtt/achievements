@@ -7,7 +7,7 @@ local PRIVATE_ACHIEVEMENTS_PATH <const> = "achievements.json"
 ---Expected schema for achievements files.
 ---@type string
 local ACHIEVEMENT_DATA_SCHEMA <const> =
-	"https://raw.githubusercontent.com/gurtt/pd-achievements/main/schema/achievements-v1.schema.json"
+	"https://raw.githubusercontent.com/gurtt/achievements/v1.0.0/achievements.schema.json"
 
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
@@ -111,6 +111,28 @@ function achievements.save()
 	savedData.achievements = achievements.kAchievements
 
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, false, savedData)
+end
+
+---Grant the specified achievement.
+---@param achievementID string The ID of the achievement to grant.
+---@return boolean didChange Whether or not the status of the achievement was changed.
+function achievements.grant(achievementID)
+	if type(achievementID) ~= "string" then
+		error('Achievement ID "' .. achievementID .. '" is invalid', 2)
+	end
+
+	local ach = achievements.kAchievements[achievementID]
+
+	if not ach then
+		error('No achievement with ID "' .. achievementID .. '"', 2)
+	end
+
+	if ach.isGranted then
+		return false
+	end
+
+	ach.isGranted = true
+	return true
 end
 
 return achievements
