@@ -17,15 +17,66 @@
 						"description": "A unique ID for the achievement.",
 						"minLength": 1
 					},
-					"isGranted": {
-						"type": "boolean",
-						"description": "Whether or not the achievement has been granted.",
-						"default": false
+					"name": {
+						"type": "string",
+						"description": "The user-facing name of the achievement.",
+						"minLength": 1
+					},
+					"lockedDescription": {
+						"type": "string",
+						"description": "The user-facing description of the requirements to unlock the achievement. Displayed when the player hasn't unlocked the achievement.",
+						"minLength": 1
+					},
+					"unlockedDescription": {
+						"type": "string",
+						"description": "The user-facing description of the requirements that unlocked the achievement. Displayed when the player hasn't unlocked the achievement.",
+						"minLength": 1
+					},
+					"value": {
+						"type": [
+							"boolean",
+							"integer"
+						],
+						"description": "The progress of the achievement."
 					}
 				},
-				"required": [
-					"id"
-				]
+				"if": {
+					"properties": {
+						"value": {
+							"type": "integer"
+						}
+					}
+				},
+				"then": {
+					"properties": {
+						"value": {
+							"minimum": 0
+						},
+						"maxValue": {
+							"type": "integer",
+							"description": "For achievements where `value` is a number, the value needed to consider the achievement granted.",
+							"minimum": 1
+						}
+					},
+					"required": [
+						"id",
+						"name",
+						"lockedDescription",
+						"unlockedDescription",
+						"value",
+						"maxValue"
+					]
+				},
+				"else": {
+					"required": [
+						"id",
+						"name",
+						"lockedDescription",
+						"unlockedDescription",
+						"value",
+						"maxValue"
+					]
+				}
 			}
 		}
 	},
