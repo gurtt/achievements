@@ -134,7 +134,7 @@ function achievements.save()
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, false, savedData)
 end
 
----Grant the specified achievement.
+---Grant the specified achievement if it is a boolean achievement, or error.
 ---@param achievementID string The ID of the achievement to grant.
 ---@return boolean didChange Whether or not the status of the achievement was changed.
 function achievements.grant(achievementID)
@@ -148,11 +148,15 @@ function achievements.grant(achievementID)
 		error('No achievement with ID "' .. achievementID .. '"', 2)
 	end
 
-	if ach.isGranted then
+	if ach.maxValue then
+		error('Achievement "' .. ach.id .. '" is numeric; use set()', 2)
+	end
+
+	if ach.value == false then
 		return false
 	end
 
-	ach.isGranted = true
+	ach.value = true
 	return true
 end
 
@@ -166,11 +170,15 @@ function achievements.isGranted(achievementID)
 
 	local ach = achievements.kAchievements[achievementID]
 
+	if ach.maxValue then
+		return ach.value == ach.maxValue
+	end
+
 	if not ach then
 		error('No achievement with ID "' .. achievementID .. '"', 2)
 	end
 
-	return ach.isGranted
+	return ach.value
 end
 
 return achievements
