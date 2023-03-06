@@ -160,6 +160,38 @@ function achievements.grant(achievementID)
 	return true
 end
 
+---Increments the specified achievement by some amount.
+---@param achievementID string The ID of the achievement to increment.
+---@param increment? number The amount to increment by. Default is 1.
+---@return boolean # Whether or not the value of the achievement was changed.
+function achievements.increment(achievementID, increment)
+	if increment and type(increment) ~= "number" then
+		error("Invalid increment type " .. type(increment) .. " (expected number)", 2)
+	end
+	local inc = increment or 1
+
+	if type(achievementID) ~= "string" then
+		error('Achievement ID "' .. achievementID .. '" is invalid', 2)
+	end
+
+	local ach = achievements.kAchievements[achievementID]
+
+	if not ach then
+		error('No achievement with ID "' .. achievementID .. '"', 2)
+	end
+
+	if not ach.maxValue then
+		error('Achievement "' .. ach.id .. '" is boolean; use set() or grant()', 2)
+	end
+
+	if ach.value == ach.maxValue then
+		return false
+	end
+
+	ach.value = math.min(ach.value + inc, ach.maxValue)
+	return true
+end
+
 ---Check if the specified achievement has been granted.
 ---@param achievementID string The ID of the achievement to check.
 ---@return boolean isGranted Whether or not the achievement has been granted.
