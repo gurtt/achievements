@@ -4,10 +4,9 @@
 ---@type string
 local PRIVATE_ACHIEVEMENTS_PATH <const> = "achievements.json"
 
----Expected schema for achievements files.
----@type string
-local ACHIEVEMENT_DATA_SCHEMA <const> =
-	"https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements-v1.schema.json"
+---The current achievements data schema version.
+---@type number
+local CURRENT_SCHEMA_VERSION <const> = 2
 
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
@@ -21,16 +20,46 @@ achievements = {}
 ---@field maxValue? number For achievements where `value` is a number, the value needed to consider the achievement granted.
 
 ---Loads saved achievement data for the game.
-local function loadSavedData()
+---@param minimumSchemaVersion? number The earliest version of the achievements data schema to try migrating from. If unspecified, migration is disabled.
+local function loadSavedData(minimumSchemaVersion)
 	local savedData = json.decodeFile(PRIVATE_ACHIEVEMENTS_PATH)
 
 	if not savedData then
 		return
 	end
 
-	if savedData["$schema"] ~= ACHIEVEMENT_DATA_SCHEMA then
-		error('File at "' .. PRIVATE_ACHIEVEMENTS_PATH .. '" has unrecognised schema "' .. savedData["$schema"] .. '"')
+	if type(savedData["$schema"]) ~= "string" then
+		error("Invalid schema type " .. type(savedData["$schema"]) .. " (expected string)")
 	end
+
+	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
+
+	local savedDataVersion = tonumber(
+		string.match(
+			savedData["$schema"],
+			"https://raw%.githubusercontent%.com/gurtt/achievements/v(\\d+)%.\\d+%.\\d+/achievements%.schema%.json"
+		)
+	)
+
+	if not savedDataVersion then
+		error('Could not determine schema version from schema "' .. savedData["$schema"] .. '"')
+	end
+
+	if savedDataVersion < minimumVersion then
+		error(
+			"Saved data is older than the minimum supported version: "
+				.. savedDataVersion
+				.. " (expected >="
+				.. minimumVersion
+				.. ")"
+		)
+	end
+
+	if savedDataVersion == CURRENT_SCHEMA_VERSION then
+		return
+	end
+
+	-- TODO: Migrate data to the native version
 
 	if not savedData.achievements then
 		error("Saved data has no achievements")
@@ -81,9 +110,10 @@ end
 -- Loads any existing achievements data from the game directory.
 -- The achievement definitions you pass are authoritative; if saved data exists for an achievement you don't define here, that data will be removed next time you call `save()`.
 ---@param achievementDefs Achievement[] The current achievements definitions for the game.
-function achievements.init(achievementDefs)
+---@param minimumSchemaVersion? number The minimum supported version of the achievements schema to support. You only need to specify this if you update your game to use a new version of the achievements system.
+function achievements.init(achievementDefs, minimumSchemaVersion)
 	if achievementDefs == nil then
-		error("No data provided during init", 2)
+		error("No achievement defs provided during init", 2)
 	end
 
 	-- Load achievements from saved data
@@ -91,7 +121,7 @@ function achievements.init(achievementDefs)
 		warn("Error loading saved achievement data: " .. msg)
 		-- Clean up any achievements loaded before the error
 		achievements.kAchievements = {}
-	end)
+	end, minimumSchemaVersion)
 
 	-- Load achievements from definitions
 	achievements.kAchievements = {}
