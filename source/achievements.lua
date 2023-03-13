@@ -19,6 +19,29 @@ achievements = {}
 ---@field value? boolean|integer The progress of the achievement.
 ---@field maxValue? number For achievements where `value` is a number, the value needed to consider the achievement granted.
 
+---Migrate data from an old schema version to the current version.
+---@param data any The decoded JSON data of the old version.
+---@param version any The determined version of `data`.
+---@return any
+local function migrate(data, version)
+	local achievements = {}
+
+	-- https://raw.githubusercontent.com/gurtt/pd-achievements/v1.0.0/schema/achievements-v1.schema.json
+	if version == 1 then
+		for i, ach in pairs(data.achievements) do
+			achievements[i] = {
+				id = ach.id,
+				name = ach.id,
+				lockedDescription = ach.id,
+				unlockedDescription = ach.id,
+				value = ach.isGranted or false,
+			}
+		end
+	end
+
+	return achievements
+end
+
 ---Loads saved achievement data for the game.
 ---@param minimumSchemaVersion? number The earliest version of the achievements data schema to try migrating from. If unspecified, migration is disabled.
 local function loadSavedData(minimumSchemaVersion)
@@ -59,7 +82,7 @@ local function loadSavedData(minimumSchemaVersion)
 		return
 	end
 
-	-- TODO: Migrate data to the native version
+	savedData.achievements = migrate(savedData.achievements, savedDataVersion)
 
 	if not savedData.achievements then
 		error("Saved data has no achievements")
