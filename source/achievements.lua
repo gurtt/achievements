@@ -8,6 +8,10 @@ local PRIVATE_ACHIEVEMENTS_PATH <const> = "achievements.json"
 ---@type number
 local CURRENT_SCHEMA_VERSION <const> = 2
 
+---The URL for the current schema definition.
+---@type string
+local SCHEMA_URL <const> = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
+
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
 
@@ -193,7 +197,7 @@ end
 function achievements.save()
 	local savedData = {}
 
-	savedData["$schema"] = ACHIEVEMENT_DATA_SCHEMA
+	savedData["$schema"] = SCHEMA_URL
 	savedData.achievements = achievements.kAchievements
 
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, false, savedData)
