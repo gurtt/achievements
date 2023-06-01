@@ -199,4 +199,10 @@ describe("increment", function()
 
 		assert(achievements.get("craft-all-tools").value == 3)
 	end)
+
+	it("should clamp to maxValue if incremented past maxValue", function()
+		achievements.increment("craft-all-tools", 100)
+
+		assert(achievements.get("craft-all-tools").value == 4)
+	end)
 end)
