@@ -257,4 +257,13 @@ describe("isGranted", function()
 
 		assert.is.True(achievements.isGranted("pickup-wood"))
 	end)
+
+	it("should return false for numeric achievements below maxValue", function()
+		assert.is.False(achievements.isGranted("craft-all-tools"))
+	end)
+
+	it("should return true for numeric achievements at maxValue", function()
+		achievements.increment("craft-all-tools", 100)
+		assert.is.True(achievements.isGranted("craft-all-tools"))
+	end)
 end)
