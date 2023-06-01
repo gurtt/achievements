@@ -340,4 +340,13 @@ describe("set", function()
 		end)
 		assert.is.True(achievements.get("craft-all-tools").value == 2)
 	end)
+
+	it("should not work for negative numeric values", function()
+		achievements.set("craft-all-tools", 2)
+
+		assert.has.error(function()
+			achievements.set("craft-all-tools", -10)
+		end)
+		assert.is.True(achievements.get("craft-all-tools").value == 2)
+	end)
 end)
