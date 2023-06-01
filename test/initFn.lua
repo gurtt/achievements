@@ -205,4 +205,10 @@ describe("increment", function()
 
 		assert(achievements.get("craft-all-tools").value == 4)
 	end)
+
+	it("should do nothing if incremented while at maxValue", function()
+		achievements.increment("craft-all-tools")
+
+		assert(achievements.get("craft-all-tools").value == 4)
+	end)
 end)
