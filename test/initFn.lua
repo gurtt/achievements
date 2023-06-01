@@ -193,4 +193,10 @@ describe("increment", function()
 
 		assert(achievements.get("craft-all-tools").value == 1)
 	end)
+
+	it("should increment numeric achievement by n", function()
+		achievements.increment("craft-all-tools", 2)
+
+		assert(achievements.get("craft-all-tools").value == 3)
+	end)
 end)
