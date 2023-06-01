@@ -99,14 +99,64 @@ describe("init", function()
 		achievements.init(achDefs)
 
 		local expected = {
-			id = "open-inventory",
-			name = "Taking Inventory",
-			lockedDescription = "Open your inventory.",
-			unlockedDescription = "Opened your inventory.",
-			value = false,
+			id = "enter-all-biomes",
+			name = "Adventuring Time",
+			lockedDescription = "Discover 17 biomes.",
+			unlockedDescription = "Discovered 17 biomes.",
+			maxValue = 17,
+			value = 0,
 		}
-		local actual = achievements.get("open-inventory")
+		local actual = achievements.get("enter-all-biomes")
 
 		assert.are.same(expected, actual)
+	end)
+end)
+
+describe("grant", function()
+	local achDefs = {
+		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["achievements"] = {
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+			},
+			{
+				id = "craft-all-tools",
+				name = "MOAR Tools",
+				lockedDescription = "Construct one type of each tool.",
+				unlockedDescription = "Constructed one type of each tool.",
+				maxValue = 4,
+			},
+		},
+	}
+	achievements.init(achDefs)
+
+	it("should grant boolean achievement when not already granted", function()
+		assert(achievements.get("pickup-wood").value == false)
+
+		local didChange = achievements.grant("pickup-wood")
+
+		assert(achievements.get("pickup-wood").value == true)
+		assert.is.True(didChange)
+	end)
+
+	it("should work if boolean achievement was already granted", function()
+		assert(achievements.get("pickup-wood").value == true)
+
+		local didChange = achievements.grant("pickup-wood")
+
+		assert(achievements.get("pickup-wood").value == true)
+		assert.is.False(didChange)
+	end)
+
+	it("should not work for numeric achievements", function()
+		assert(achievements.get("craft-all-tools").value == 0)
+
+		assert.has.error(function()
+			achievements.grant("craft-all-tools")
+		end)
+		assert(achievements.get("craft-all-tools").value == 0)
 	end)
 end)
