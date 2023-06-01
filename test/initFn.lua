@@ -356,3 +356,33 @@ describe("set", function()
 		end)
 	end)
 end)
+
+describe("get", function()
+	it("should return the whole achievement object", function()
+		local achDefs = {
+			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+			["achievements"] = {
+				{
+					id = "enter-all-biomes",
+					name = "Adventuring Time",
+					lockedDescription = "Discover 17 biomes.",
+					unlockedDescription = "Discovered 17 biomes.",
+					maxValue = 17,
+				},
+			},
+		}
+		achievements.init(achDefs)
+
+		local expected = {
+			id = "enter-all-biomes",
+			name = "Adventuring Time",
+			lockedDescription = "Discover 17 biomes.",
+			unlockedDescription = "Discovered 17 biomes.",
+			maxValue = 17,
+			value = 0,
+		}
+		local actual = achievements.get("enter-all-biomes")
+
+		assert.are.same(expected, actual)
+	end)
+end)
