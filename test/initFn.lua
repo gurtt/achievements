@@ -323,5 +323,12 @@ describe("set", function()
 			achievements.set("pickup-wood", 900)
 		end)
 		assert.is.True(achievements.get("pickup-wood").value == false)
+
+		achievements.set("craft-all-tools", 2)
+
+		assert.has.error(function()
+			achievements.set("craft-all-tools", false)
+		end)
+		assert.is.True(achievements.get("craft-all-tools").value == 2)
 	end)
 end)
