@@ -302,4 +302,12 @@ describe("set", function()
 		achievements.set("pickup-wood", false)
 		assert.is.False(achievements.get("pickup-wood").value)
 	end)
+
+	it("should set the value of numeric achievements", function()
+		achievements.set("craft-all-tools", 4)
+		assert.is.True(achievements.get("craft-all-tools").value == 4)
+
+		achievements.set("craft-all-tools", 0)
+		assert.is.False(achievements.get("craft-all-tools").value == 0)
+	end)
 end)
