@@ -166,3 +166,31 @@ describe("grant", function()
 		end)
 	end)
 end)
+
+describe("increment", function()
+	local achDefs = {
+		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["achievements"] = {
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+			},
+			{
+				id = "craft-all-tools",
+				name = "MOAR Tools",
+				lockedDescription = "Construct one type of each tool.",
+				unlockedDescription = "Constructed one type of each tool.",
+				maxValue = 4,
+			},
+		},
+	}
+	achievements.init(achDefs)
+
+	it("should increment numeric achievement by 1", function()
+		achievements.increment("craft-all-tools")
+
+		assert(achievements.get("craft-all-tools").value == 1)
+	end)
+end)
