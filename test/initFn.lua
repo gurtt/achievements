@@ -273,3 +273,33 @@ describe("isGranted", function()
 		end)
 	end)
 end)
+
+describe("set", function()
+	local achDefs = {
+		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["achievements"] = {
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+			},
+			{
+				id = "craft-all-tools",
+				name = "MOAR Tools",
+				lockedDescription = "Construct one type of each tool.",
+				unlockedDescription = "Constructed one type of each tool.",
+				maxValue = 4,
+			},
+		},
+	}
+	achievements.init(achDefs)
+
+	it("should set the value of boolean achievements", function()
+		achievements.set("pickup-wood", true)
+		assert.is.True(achievements.get("pickup-wood").value)
+
+		achievements.set("pickup-wood", false)
+		assert.is.False(achievements.get("pickup-wood").value)
+	end)
+end)
