@@ -315,4 +315,13 @@ describe("set", function()
 		achievements.set("craft-all-tools", 100)
 		assert.is.True(achievements.get("craft-all-tools").value == 4)
 	end)
+
+	it("should not work for values of the wrong type", function()
+		achievements.set("pickup-wood", false)
+
+		assert.has.error(function()
+			achievements.set("pickup-wood", 900)
+		end)
+		assert.is.True(achievements.get("pickup-wood").value == false)
+	end)
 end)
