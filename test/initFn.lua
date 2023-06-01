@@ -385,4 +385,10 @@ describe("get", function()
 
 		assert.are.same(expected, actual)
 	end)
+
+	it("should not work for non-existent achievement", function()
+		assert.has.error(function()
+			achievements.isGranted("play-terraria")
+		end)
+	end)
 end)
