@@ -225,6 +225,14 @@ describe("increment", function()
 		assert.is.True(achievements.get("craft-all-tools").value == 2)
 	end)
 
+	it("should decrement numeric achievement by n", function()
+		achievements.set("craft-all-tools", 3)
+		local didChange = achievements.increment("craft-all-tools", -2)
+
+		assert(achievements.get("craft-all-tools").value == 1)
+		assert.is.True(didChange)
+	end)
+
 	it("should not work for boolean achievements", function()
 		assert.has.error(function()
 			achievements.increment("pickup-wood")
