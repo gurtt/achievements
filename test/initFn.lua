@@ -189,6 +189,7 @@ describe("increment", function()
 	achievements.init(achDefs)
 
 	it("should increment numeric achievement by 1", function()
+		achievements.set("craft-all-tools", 0)
 		local didChange = achievements.increment("craft-all-tools")
 
 		assert(achievements.get("craft-all-tools").value == 1)
@@ -196,6 +197,7 @@ describe("increment", function()
 	end)
 
 	it("should increment numeric achievement by n", function()
+		achievements.set("craft-all-tools", 1)
 		local didChange = achievements.increment("craft-all-tools", 2)
 
 		assert(achievements.get("craft-all-tools").value == 3)
@@ -203,6 +205,7 @@ describe("increment", function()
 	end)
 
 	it("should clamp to maxValue if incremented past maxValue", function()
+		achievements.set("craft-all-tools", 3)
 		local didChange = achievements.increment("craft-all-tools", 100)
 
 		assert(achievements.get("craft-all-tools").value == 4)
@@ -218,9 +221,18 @@ describe("increment", function()
 	end)
 
 	it("should do nothing if incremented while at maxValue", function()
+		achievements.set("craft-all-tools", 4)
 		local didChange = achievements.increment("craft-all-tools")
 
 		assert(achievements.get("craft-all-tools").value == 4)
+		assert.is.False(didChange)
+	end)
+
+	it("should do nothing if decremented while at 0", function()
+		achievements.set("craft-all-tools", 0)
+		local didChange = achievements.increment("craft-all-tools", -100)
+
+		assert(achievements.get("craft-all-tools").value == 0)
 		assert.is.False(didChange)
 	end)
 
