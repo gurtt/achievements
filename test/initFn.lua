@@ -209,6 +209,14 @@ describe("increment", function()
 		assert.is.True(didChange)
 	end)
 
+	it("should clamp to 0 if decremented past zero", function()
+		achievements.set("craft-all-tools", 1)
+		local didChange = achievements.increment("get-all-tools", -100)
+
+		assert(achievements.get("craft-all-tools").value == 0)
+		assert.is.True(didChange)
+	end)
+
 	it("should do nothing if incremented while at maxValue", function()
 		local didChange = achievements.increment("craft-all-tools")
 
