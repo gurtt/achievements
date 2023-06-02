@@ -34,6 +34,30 @@ describe("init", function()
 		assert.has.error(function()
 			achievements.init(achDefs)
 		end)
+		assert.has.error(function()
+			achievements.get("open-inventory")
+		end)
+	end)
+
+	it("should not load definitions if the schema is invalid", function()
+		local achDefs = {
+			["schema"] = "https://example.com/v2.0.0/achievements.schema.json",
+			["achievements"] = {
+				{
+					id = "open-inventory",
+					name = "Taking Inventory",
+					lockedDescription = "Open your inventory.",
+					unlockedDescription = "Opened your inventory.",
+				},
+			},
+		}
+
+		assert.has.error(function()
+			achievements.init(achDefs)
+		end)
+		assert.has.error(function()
+			achievements.get("open-inventory")
+		end)
 	end)
 
 	it("should ignore values when loading definitions", function()
