@@ -15,6 +15,13 @@ function mockJson.removeFile(at)
 	mockJson.decodableFiles[at] = nil
 end
 
+---Returns the entry from the virtual file system.
+---@param at string the path to the JSON file to retrive the mock for.
+---@return table
+function mockJson.getFile(at)
+	return mockJson.files[at]
+end
+
 ---@diagnostic disable-next-line: lowercase-global
 json = {}
 
@@ -25,12 +32,12 @@ function json.decodeFile(path)
 	return mockJson.files[path]
 end
 
----Encodes the Lua table `table` to JSON and writes it to the given `path`. If `pretty` is true, the output is formatted to make it human-readable. Otherwise, no additional whitespace is added.
+---Encodes the Lua table `table` to JSON and writes it to the given `path`. Otherwise, no additional whitespace is added.
+-- Use of the `pretty` argument is not supported.
 ---@param path string
----@param pretty? boolean
 ---@param table table
-function json.encodeToFile(path, pretty, table)
-	-- TODO: Copy the table to the file system, and support any value for the pretty param
+function json.encodeToFile(path, table)
+	mockJson.files[path] = table
 end
 
 return mockJson
