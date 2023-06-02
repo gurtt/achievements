@@ -3,7 +3,7 @@ require("source.achievements")
 describe("init", function()
 	it("should load a valid achievement definition without error", function()
 		local achDefs = {
-			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+			["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 			["achievements"] = {
 				{
 					id = "open-inventory",
@@ -41,7 +41,7 @@ describe("init", function()
 
 	it("should not load definitions if the schema is invalid", function()
 		local achDefs = {
-			["schema"] = "https://example.com/v2.0.0/achievements.schema.json",
+			["$schema"] = "https://example.com/v2.0.0/achievements.schema.json",
 			["achievements"] = {
 				{
 					id = "open-inventory",
@@ -156,7 +156,7 @@ describe("init", function()
 		for description, achDef in pairs(fieldErrors) do
 			it(description, function()
 				local achDefs = {
-					["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+					["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 					["achievements"] = {
 						achDef,
 					},
@@ -171,7 +171,7 @@ describe("init", function()
 
 	it("should ignore values when loading definitions", function()
 		local achDefs = {
-			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+			["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 			["achievements"] = {
 				-- valid with values
 				{
@@ -235,7 +235,7 @@ describe("init", function()
 
 	it("should make achievements available after init", function()
 		local achDefs = {
-			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+			["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 			["achievements"] = {
 				{
 					id = "enter-all-biomes",
@@ -264,7 +264,7 @@ end)
 
 describe("grant", function()
 	local achDefs = {
-		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 		["achievements"] = {
 			{
 				id = "pickup-wood",
@@ -319,7 +319,7 @@ end)
 
 describe("increment", function()
 	local achDefs = {
-		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 		["achievements"] = {
 			{
 				id = "pickup-wood",
@@ -418,7 +418,7 @@ end)
 
 describe("isGranted", function()
 	local achDefs = {
-		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 		["achievements"] = {
 			{
 				id = "pickup-wood",
@@ -463,7 +463,7 @@ end)
 
 describe("set", function()
 	local achDefs = {
-		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 		["achievements"] = {
 			{
 				id = "pickup-wood",
@@ -546,7 +546,7 @@ end)
 
 describe("get", function()
 	local achDefs = {
-		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 		["achievements"] = {
 			{
 				id = "enter-all-biomes",
