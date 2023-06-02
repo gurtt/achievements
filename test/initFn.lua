@@ -358,6 +358,14 @@ describe("init", function()
 		assert.is.True(achievements.get("pickup-wood").value == true)
 		assert.is.True(achievements.get("craft-all-tools").value == 0)
 	end)
+
+	it("should not work if no achievements are defined", function()
+		local achDefs = defs.generate({})
+
+		assert.has.error(function()
+			achievements.init(achDefs)
+		end)
+	end)
 end)
 
 describe("grant", function()
