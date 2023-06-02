@@ -1,14 +1,16 @@
+local defs = {}
+
 ---Generates a valid achievement definition collection for the current schema version.
 -- This doesn't verify the passed achievement definitions.
----@param defs table An array of achievement definitions.
+---@param defTable table An array of achievement definitions.
 ---@return table The generated definition collection.
-local function generateDefs(defs)
+function defs.generate(defTable)
 	local defCollection = {}
 
 	defCollection["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
-	defCollection["achievements"] = defs
+	defCollection["achievements"] = defTable
 
 	return defCollection
 end
 
-return generateDefs
+return defs
