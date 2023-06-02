@@ -216,6 +216,15 @@ describe("increment", function()
 		assert.is.False(didChange)
 	end)
 
+	it("should not work for non-integer numeric values", function()
+		achievements.set("craft-all-tools", 1)
+
+		assert.has.error(function()
+			achievements.increment("craft-all-tools", 2.5)
+		end)
+		assert.is.True(achievements.get("craft-all-tools").value == 2)
+	end)
+
 	it("should not work for boolean achievements", function()
 		assert.has.error(function()
 			achievements.increment("pickup-wood")
