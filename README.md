@@ -23,8 +23,7 @@ toybox update
 
 First, initialise achievements by calling `init()` near the start of your game. You'll need to provide some info up front:
 
-* **achievements**: this is the definition for the [achievements](https://github.com/gurtt/achievements/blob/main/source/achievements.lua#L14) in your game. These definitions must match the current schema version (except for the `value` field, which is ignored). Saved data will be updated to match this definition, including creating new achievements and deleting old ones.
-* **minimumSchemaVersion**: if you've published your game with a previous version of the achievements library and now you're using a newer version, you'll need to specify this argument. It should be the oldest schema version number you published the game with. The library will handle updating any old saved data to the newest format. If you don't specify this argument, the library will consider any old data invalid and it will be discarded next time data is saved.
+* **achievements**: this is the definition for the achievements in your game. These definitions must match the current schema version (except for the `value` field, which is ignored). Saved data will be updated to match this definition, including creating new achievements and deleting old ones.
 
 Once you've initialised the library, you can call methods to update your achievements:
 
@@ -36,6 +35,23 @@ Once you've initialised the library, you can call methods to update your achieve
 * **save()** will persist your achievements data to storage. It's a good idea to call this during game lifecycle events.
 
 While `set()` techically allows you to do things like un-grant boolean achievements and decrease numeric achievements, this is not encouraged as achievement progress shouldn't generally go backwards. Don't add mechanisms to clear achievements for players; achievements can be reset by deleting the game data in Settings.
+
+### Updating achievements
+
+Players expect achievements to be consistent and stable in a game, even between updates or other changes, even if you update your game or add new content. The achievements library relies on the `id` of your achievements to keep track of them and tell them apart, so keep these stable. IDs must be unique, but only within your game.
+
+The definitions you pass to `init` are authoritative. If the library detects saved achievements that aren't defined, they will be discarded. Similarly, if the saved data for an achievement doesn't match a definition (for example, there is a saved boolean achievement that you've since redefined as a numeric achievement), it will be discarded.
+
+If you change the version of the library you use in your game, and that version uses a different achievements schema, any saved data with a different schema version will be discarded unless you enable migration. The schema version aligns with the major version of this library.
+
+Migration is enabled when you specify a `minimumSchemaVersion` in `init`. This should be the earliest schema version your game was shared with. For example:
+
+* If you made your game using v2.0.1, and you later publish an update using v4.1.0, you should set `minimumSchemaVersion` to 2.
+* If you made your game using v2.0.1, and you later publish an update using v2.5.0, you don't need to set a `minimumSchemaVersion`.
+
+When you enable migration, the achievements library will automatically handle updating any saved data in old versions (as long as they're at or above the minimum version). The previous advice about using consistent IDs still applies. Data will always be saved in the latest format for the version of the library you're using, so you can't go backwards.
+
+You should only enable migration if you need to, and you should use the highest minimum version you can. This helps to cut down on the size of your game by excluding any unneeded migration code (to be verified).
 
 ## API
 
