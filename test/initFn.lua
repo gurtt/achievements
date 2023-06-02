@@ -1,4 +1,5 @@
 require("source.achievements")
+require("test.support.json")
 local defs = require("test.support.defs")
 
 describe("init", function()
@@ -246,6 +247,47 @@ describe("init", function()
 		local actual = achievements.get("enter-all-biomes")
 
 		assert.are.same(expected, actual)
+	end)
+
+	it("should load valid achievement data from a file", function()
+		local achDefs = defs.generate({
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+			},
+			{
+				id = "craft-all-tools",
+				name = "MOAR Tools",
+				lockedDescription = "Construct one type of each tool.",
+				unlockedDescription = "Constructed one type of each tool.",
+				maxValue = 4,
+			},
+		})
+		local achData = defs.generate({
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+				value = true,
+			},
+			{
+				id = "craft-all-tools",
+				name = "MOAR Tools",
+				lockedDescription = "Construct one type of each tool.",
+				unlockedDescription = "Constructed one type of each tool.",
+				maxValue = 4,
+				value = 3,
+			},
+		})
+
+		json.encodeToFile("achievements.json", achData)
+		achievements.init(achDefs)
+
+		assert.is.True(achievements.get("pickup-wood").value == true)
+		assert.is.True(achievements.get("craft-all-tools").value == 3)
 	end)
 end)
 
