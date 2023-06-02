@@ -60,6 +60,115 @@ describe("init", function()
 		end)
 	end)
 
+	describe("should not load definitions if", function()
+		local fieldErrors = {
+			["the id is missing"] = {
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the id is not a string"] = {
+				id = true,
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the id is an empty string"] = {
+				id = "",
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the name is missing"] = {
+				id = "open-inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the name is not a string"] = {
+				id = "open-inventory",
+				name = true,
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the name is an empty string"] = {
+				id = "open-inventory",
+				name = "",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the lockedDescription is missing"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the lockedDescription is not a string"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = true,
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the lockedDescription is an empty string"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = "",
+				unlockedDescription = "Opened your inventory.",
+			},
+			["the unlockedDescription is missing"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+			},
+			["the unlockedDescription is not a string"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = true,
+			},
+			["the unlockedDescription is an empty string"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "",
+			},
+			["the maxValue is not a number"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+				maxValue = true,
+			},
+			["the maxValue is a negative number"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+				maxValue = -19,
+			},
+			["the maxValue is a non-integer number"] = {
+				id = "open-inventory",
+				name = "Taking Inventory",
+				lockedDescription = "Open your inventory.",
+				unlockedDescription = "Opened your inventory.",
+				maxValue = 2.5,
+			},
+		}
+
+		for description, achDef in pairs(fieldErrors) do
+			it(description, function()
+				local achDefs = {
+					["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+					["achievements"] = {
+						achDef,
+					},
+				}
+
+				assert.has.error(function()
+					achievements.init(achDefs)
+				end)
+			end)
+		end
+	end)
+
 	it("should ignore values when loading definitions", function()
 		local achDefs = {
 			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
