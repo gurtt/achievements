@@ -289,6 +289,75 @@ describe("init", function()
 		assert.is.True(achievements.get("pickup-wood").value == true)
 		assert.is.True(achievements.get("craft-all-tools").value == 3)
 	end)
+
+	it("should not include achievements from file not in definitions", function()
+		local achDefs = defs.generate({
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+			},
+		})
+		local achData = defs.generate({
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+				value = true,
+			},
+			{
+				id = "craft-all-tools",
+				name = "MOAR Tools",
+				lockedDescription = "Construct one type of each tool.",
+				unlockedDescription = "Constructed one type of each tool.",
+				maxValue = 4,
+				value = 3,
+			},
+		})
+
+		json.encodeToFile("achievements.json", achData)
+		achievements.init(achDefs)
+
+		assert.is.True(achievements.get("pickup-wood").value == true)
+		assert.has.error(function()
+			achievements.get("craft-all-tools")
+		end)
+	end)
+
+	it("should include achievements not from file but in definitions", function()
+		local achDefs = defs.generate({
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+			},
+			{
+				id = "craft-all-tools",
+				name = "MOAR Tools",
+				lockedDescription = "Construct one type of each tool.",
+				unlockedDescription = "Constructed one type of each tool.",
+				maxValue = 4,
+			},
+		})
+		local achData = defs.generate({
+			{
+				id = "pickup-wood",
+				name = "Getting Wood",
+				lockedDescription = "Punch a tree until a block of wood pops out.",
+				unlockedDescription = "Obtained your first block of wood.",
+				value = true,
+			},
+		})
+
+		json.encodeToFile("achievements.json", achData)
+		achievements.init(achDefs)
+
+		assert.is.True(achievements.get("pickup-wood").value == true)
+		assert.is.True(achievements.get("craft-all-tools").value == 0)
+	end)
 end)
 
 describe("grant", function()
