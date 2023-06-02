@@ -19,6 +19,23 @@ describe("init", function()
 		end)
 	end)
 
+	it("should not load definitions if the schema is missing", function()
+		local achDefs = {
+			["achievements"] = {
+				{
+					id = "open-inventory",
+					name = "Taking Inventory",
+					lockedDescription = "Open your inventory.",
+					unlockedDescription = "Opened your inventory.",
+				},
+			},
+		}
+
+		assert.has.error(function()
+			achievements.init(achDefs)
+		end)
+	end)
+
 	it("should ignore values when loading definitions", function()
 		local achDefs = {
 			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
@@ -395,21 +412,21 @@ describe("set", function()
 end)
 
 describe("get", function()
-	it("should return the whole achievement object", function()
-		local achDefs = {
-			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
-			["achievements"] = {
-				{
-					id = "enter-all-biomes",
-					name = "Adventuring Time",
-					lockedDescription = "Discover 17 biomes.",
-					unlockedDescription = "Discovered 17 biomes.",
-					maxValue = 17,
-				},
+	local achDefs = {
+		["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
+		["achievements"] = {
+			{
+				id = "enter-all-biomes",
+				name = "Adventuring Time",
+				lockedDescription = "Discover 17 biomes.",
+				unlockedDescription = "Discovered 17 biomes.",
+				maxValue = 17,
 			},
-		}
-		achievements.init(achDefs)
+		},
+	}
+	achievements.init(achDefs)
 
+	it("should return the whole achievement object", function()
 		local expected = {
 			id = "enter-all-biomes",
 			name = "Adventuring Time",
