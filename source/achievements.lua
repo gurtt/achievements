@@ -200,7 +200,7 @@ end
 ---@param achievementDefs AchievementDefinitions The current achievements definitions for the game.
 ---@param minimumSchemaVersion? number The minimum supported version of the achievements schema to support. You only need to specify this if you update your game to use a new version of the achievements system.
 function achievements.init(achievementDefs, minimumSchemaVersion)
-	if achievementDefs == nil then
+	if achievementDefs == nil or achievementDefs.achievements == nil then
 		error("No achievement defs provided during init", 2)
 	end
 
@@ -212,7 +212,9 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	end, minimumSchemaVersion)
 
 	-- Load achievements from definitions
+	local numAchDef = 0
 	for _, achDef in ipairs(achievementDefs.achievements) do
+		numAchDef = numAchDef + 1
 		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
 			if type(achDef[key]) ~= "string" or achDef[key] == "" then
 				error("Achievement definition at index " .. i .. " has invalid " .. key .. ": " .. achDef[key], 2)
@@ -243,6 +245,10 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 		end
 
 		achievements.kAchievements[achDef.id] = achDef
+	end
+
+	if numAchDef == 0 then
+		error("No achiemvent defs provided during init", 2)
 	end
 end
 
