@@ -258,7 +258,7 @@ function achievements.grant(achievementID)
 		error('Achievement "' .. ach.id .. '" is numeric; use set() or increment()', 2)
 	end
 
-	if ach.value == false then
+	if ach.value == true then
 		return false
 	end
 
