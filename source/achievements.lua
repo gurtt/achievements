@@ -208,7 +208,7 @@ function achievements.save()
 	savedData["$schema"] = SCHEMA_URL
 	savedData.achievements = achievements.kAchievements
 
-	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, false, savedData)
+	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, savedData)
 end
 
 ---Grant the specified achievement if it is a boolean achievement.
