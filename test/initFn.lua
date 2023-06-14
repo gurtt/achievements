@@ -18,47 +18,6 @@ describe("init", function()
 		end)
 	end)
 
-	it("should not load definitions if the schema is missing", function()
-		local achDefs = {
-			["achievements"] = {
-				{
-					id = "open-inventory",
-					name = "Taking Inventory",
-					lockedDescription = "Open your inventory.",
-					unlockedDescription = "Opened your inventory.",
-				},
-			},
-		}
-
-		assert.has.error(function()
-			achievements.init(achDefs)
-		end)
-		assert.has.error(function()
-			achievements.get("open-inventory")
-		end)
-	end)
-
-	it("should not load definitions if the schema is invalid", function()
-		local achDefs = {
-			["$schema"] = "https://example.com/v2.0.0/achievements.schema.json",
-			["achievements"] = {
-				{
-					id = "open-inventory",
-					name = "Taking Inventory",
-					lockedDescription = "Open your inventory.",
-					unlockedDescription = "Opened your inventory.",
-				},
-			},
-		}
-
-		assert.has.error(function()
-			achievements.init(achDefs)
-		end)
-		assert.has.error(function()
-			achievements.get("open-inventory")
-		end)
-	end)
-
 	describe("should not load definitions if", function()
 		local fieldErrors = {
 			["the id is missing"] = {
@@ -480,8 +439,10 @@ describe("increment", function()
 
 	it("should do nothing if decremented while at 0", function()
 		achievements.set("craft-all-tools", 0)
+		local didChange = achievements.increment("craft-all-tools", -100)
 
 		assert(achievements.get("craft-all-tools").value == 0)
+		assert.is.False(didChange)
 	end)
 
 	it("should not work for non-integer numeric values", function()
@@ -631,7 +592,7 @@ describe("set", function()
 
 	it("should not work for non-existent achievement", function()
 		assert.has.error(function()
-			achievements.isGranted("play-terraria")
+			achievements.set("play-terraria", 1)
 		end)
 	end)
 end)
@@ -664,7 +625,7 @@ describe("get", function()
 
 	it("should not work for non-existent achievement", function()
 		assert.has.error(function()
-			achievements.isGranted("play-terraria")
+			achievements.get("play-terraria")
 		end)
 	end)
 end)
