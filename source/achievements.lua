@@ -54,11 +54,21 @@ function achievements.set(achievementID, value)
 			error('Invalid value type for achievement "' .. ach.id .. '" (expected number)', 2)
 		end
 
+		if value < 0 then
+			error("Invalid numeric value (expected >= 0)", 2)
+		end
+
+		if value % 1 ~= 0 then
+			error("Invalid numeric value (expected integer)", 2)
+		end
+
 		ach.value = math.min(value, ach.maxValue)
 	else
 		if type(value) ~= "boolean" then
-			error('Invalid value type for achievement "' .. ach.id .. '" (expected number)', 2)
+			error('Invalid value type for achievement "' .. ach.id .. '" (expected boolean)', 2)
 		end
+
+		ach.value = value
 	end
 end
 

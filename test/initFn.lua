@@ -589,7 +589,7 @@ describe("set", function()
 		assert.is.True(achievements.get("craft-all-tools").value == 4)
 
 		achievements.set("craft-all-tools", 0)
-		assert.is.False(achievements.get("craft-all-tools").value == 0)
+		assert.is.True(achievements.get("craft-all-tools").value == 0)
 	end)
 
 	it("should clamp to maxValue if set past maxValue", function()
