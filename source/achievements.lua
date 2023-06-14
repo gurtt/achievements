@@ -282,8 +282,14 @@ end
 ---@param increment? number The amount to increment by. Default is 1.
 ---@return boolean # Whether or not the value of the achievement was changed.
 function achievements.increment(achievementID, increment)
-	if increment and type(increment) ~= "number" then
-		error("Invalid increment type " .. type(increment) .. " (expected number)", 2)
+	if increment then
+		if type(increment) ~= "number" then
+			error("Invalid increment type " .. type(increment) .. " (expected number)", 2)
+		end
+
+		if increment % 1 ~= 0 then
+			error("Invalid increment value (expected integer)", 2)
+		end
 	end
 	local inc = increment or 1
 
@@ -297,7 +303,11 @@ function achievements.increment(achievementID, increment)
 		return false
 	end
 
-	ach.value = math.min(ach.value + inc, ach.maxValue)
+	if inc < 1 and ach.value == 0 then
+		return false
+	end
+
+	ach.value = math.max(math.min(ach.value + inc, ach.maxValue), 0)
 	return true
 end
 

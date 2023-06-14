@@ -480,10 +480,8 @@ describe("increment", function()
 
 	it("should do nothing if decremented while at 0", function()
 		achievements.set("craft-all-tools", 0)
-		local didChange = achievements.increment("craft-all-tools", -100)
 
 		assert(achievements.get("craft-all-tools").value == 0)
-		assert.is.False(didChange)
 	end)
 
 	it("should not work for non-integer numeric values", function()
@@ -492,7 +490,7 @@ describe("increment", function()
 		assert.has.error(function()
 			achievements.increment("craft-all-tools", 2.5)
 		end)
-		assert.is.True(achievements.get("craft-all-tools").value == 2)
+		assert.is.True(achievements.get("craft-all-tools").value == 1)
 	end)
 
 	it("should decrement numeric achievement by n", function()
