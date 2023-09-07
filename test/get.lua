@@ -1,19 +1,26 @@
-require("source.achievements")
-require("test.support.json")
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
 
 describe("get", function()
-	local ach = {
-		id = rstring(),
-		name = rstring(),
-		lockedDescription = rstring(),
-		unlockedDescription = rstring(),
-		maxValue = 17,
-	}
+	before_each(function()
+		_G.achievements = require("source.achievements")
 
-	local achDefs = defs.generate({ ach })
-	achievements.init(achDefs)
+		_G.ach = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			maxValue = 17,
+		}
+
+		local achDefs = defs.generate({ ach })
+		achievements.init(achDefs)
+	end)
+
+	after_each(function()
+		_G.achievements = nil
+		_G.ach = nil
+	end)
 
 	it("should return the whole achievement object", function()
 		ach.value = 0
