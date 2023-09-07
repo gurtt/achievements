@@ -139,6 +139,7 @@ describe("init", function()
 				name = rstring(),
 				lockedDescription = rstring(),
 				unlockedDescription = rstring(),
+				unlockedAt = 100,
 				value = true,
 			},
 			{
@@ -146,6 +147,7 @@ describe("init", function()
 				name = rstring(),
 				lockedDescription = rstring(),
 				unlockedDescription = rstring(),
+				unlockedAt = 100,
 				maxValue = 4,
 				value = 3,
 			},
@@ -224,6 +226,7 @@ describe("init", function()
 		}
 		local achDefs = defs.generate({ booleanAch, numericAch })
 		booleanAch.value = true
+		booleanAch.unlockedAt = 100
 		numericAch.value = 3
 		local achData = defs.generate({ booleanAch, numericAch })
 
@@ -250,6 +253,7 @@ describe("init", function()
 		}
 		local achDefs = defs.generate({ booleanAch })
 		booleanAch.value = true
+		booleanAch.unlockedAt = 100
 		numericAch.value = 3
 		local achData = defs.generate({ booleanAch, numericAch })
 
@@ -278,6 +282,7 @@ describe("init", function()
 		}
 		local achDefs = defs.generate({ booleanAch, numericAch })
 		booleanAch.value = true
+		booleanAch.unlockedAt = 100
 		numericAch.value = 0
 		local achData = defs.generate({ booleanAch })
 

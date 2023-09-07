@@ -36,6 +36,7 @@ describe("grant", function()
 		local didChange = achievements.grant(booleanAchId)
 
 		assert(achievements.get(booleanAchId).value == true)
+		assert(math.abs(achievements.get(booleanAchId).unlockedAt - os.time()) < 2)
 		assert.is.True(didChange)
 	end)
 

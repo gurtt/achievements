@@ -1,15 +1,15 @@
-local deepCopy = require("deepCopy")
+local deepCopy = require("source.deepCopy")
 ---Path where the achievements data for the game is saved.
 ---@type string
 local PRIVATE_ACHIEVEMENTS_PATH = "achievements.json"
 
 ---Current achievements data schema version.
 ---@type number
-local CURRENT_SCHEMA_VERSION = 2
+local CURRENT_SCHEMA_VERSION = 3
 
 ---URL for the current schema definition.
 ---@type string
-local SCHEMA_URL = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
+local SCHEMA_URL = "https://raw.githubusercontent.com/gurtt/achievements/v3.0.0/achievements.schema.json"
 
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
@@ -19,6 +19,7 @@ achievements = {}
 ---@field name string The user-facing name of the achievement.
 ---@field lockedDescription string The user-facing description of the requirements to unlock the achievement. Displayed when the player hasn't unlocked the achievement.
 ---@field unlockedDescription string The user-facing description of the requirements that unlocked the achievement. Displayed when the player hasn't unlocked the achievement.
+---@field unlockedAt? number The seconds since epoch when the achievement was unlocked. Ignored if not unlocked.
 ---@field value? boolean|integer The progress of the achievement.
 ---@field maxValue? number For achievements where `value` is a number, the value needed to consider the achievement granted.
 
@@ -61,7 +62,16 @@ function achievements.set(achievementID, value)
 			error("Invalid numeric value (expected integer)", 2)
 		end
 
+		local wasUnlocked = achievements.isGranted(ach.id)
 		ach.value = math.min(value, ach.maxValue)
+
+		if (not wasUnlocked) and achievements.isGranted(ach.id) then
+			ach.unlockedAt = os.time()
+		end
+
+		if wasUnlocked and (not achievements.isGranted(ach.id)) then
+			ach.unlockedAt = nil
+		end
 	else
 		if type(value) ~= "boolean" then
 			error('Invalid value type for achievement "' .. ach.id .. '" (expected boolean)', 2)
@@ -176,6 +186,12 @@ local function load(minimumSchemaVersion)
 					'Achievement data"' .. ach.id .. '"has invalid value type' .. type(ach.value)(" (expected number)")
 				)
 			end
+
+			if ach.value >= ach.maxValue then
+				if type(ach.unlockedAt) ~= "number" or ach.unlockedAt % 1 ~= 0 or ach.unlockedAt < 0 then
+					error('Achievement data "' .. ach.id .. '"has invalid unlockedAt ' .. ach.unlockedAt)
+				end
+			end
 		else -- saved ach is boolean
 			if type(ach.value) ~= "boolean" then
 				error(
@@ -185,6 +201,12 @@ local function load(minimumSchemaVersion)
 						.. type(ach.value)
 						.. " (expected boolean)"
 				)
+			end
+
+			if ach.value == true then
+				if type(ach.unlockedAt) ~= "number" or ach.unlockedAt % 1 ~= 0 or ach.unlockedAt < 0 then
+					error('Achievement data "' .. ach.id .. '"has invalid unlockedAt ' .. ach.unlockedAt)
+				end
 			end
 		end
 
@@ -239,6 +261,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 			if achDef.maxValue then
 				if type(sAch[achDef.id].value) == "number" then
 					achDef.value = sAch[achDef.id].value
+					achDef.unlockedAt = sAch[achDef.id].unlockedAt
 				else
 					warn(
 						"Achievment definition and saved data for "
@@ -249,6 +272,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 			else
 				if type(sAch[achDef.id].value) == "boolean" then
 					achDef.value = sAch[achDef.id].value
+					achDef.unlockedAt = sAch[achDef.id].unlockedAt
 				else
 					warn(
 						"Achievment definition and saved data for "
@@ -303,6 +327,7 @@ function achievements.grant(achievementID)
 	end
 
 	ach.value = true
+	ach.unlockedAt = os.time()
 	return true
 end
 

@@ -32,6 +32,11 @@
 						"description": "The user-facing description of the requirements that unlocked the achievement. Displayed when the player hasn't unlocked the achievement.",
 						"minLength": 1
 					},
+					"unlockedAt": {
+						"type": "integer",
+						"description": "The seconds since epoch when the achievement was unlocked. Ignored if the achievement isn't unlocked.",
+						"minimum": 0
+					},
 					"value": {
 						"type": [
 							"boolean",
