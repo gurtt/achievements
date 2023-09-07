@@ -1,15 +1,16 @@
 require("source.achievements")
 require("test.support.json")
 local defs = require("test.support.defs")
+local rstring = require("test.support.rstring")
 
 describe("init", function()
 	it("should load a valid achievement definition without error", function()
 		local achDefs = defs.generate({
 			{
-				id = "open-inventory",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 			},
 		})
 
@@ -21,92 +22,92 @@ describe("init", function()
 	describe("should not load definitions if", function()
 		local fieldErrors = {
 			["the id is missing"] = {
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 			},
 			["the id is not a string"] = {
 				id = true,
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 			},
 			["the id is an empty string"] = {
 				id = "",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 			},
 			["the name is missing"] = {
-				id = "open-inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				id = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 			},
 			["the name is not a string"] = {
-				id = "open-inventory",
+				id = rstring(),
 				name = true,
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 			},
 			["the name is an empty string"] = {
-				id = "open-inventory",
+				id = rstring(),
 				name = "",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 			},
 			["the lockedDescription is missing"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
-				unlockedDescription = "Opened your inventory.",
+				id = rstring(),
+				name = rstring(),
+				unlockedDescription = rstring(),
 			},
 			["the lockedDescription is not a string"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
+				id = rstring(),
+				name = rstring(),
 				lockedDescription = true,
-				unlockedDescription = "Opened your inventory.",
+				unlockedDescription = rstring(),
 			},
 			["the lockedDescription is an empty string"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
+				id = rstring(),
+				name = rstring(),
 				lockedDescription = "",
-				unlockedDescription = "Opened your inventory.",
+				unlockedDescription = rstring(),
 			},
 			["the unlockedDescription is missing"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
 			},
 			["the unlockedDescription is not a string"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
 				unlockedDescription = true,
 			},
 			["the unlockedDescription is an empty string"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
 				unlockedDescription = "",
 			},
 			["the maxValue is not a number"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				maxValue = true,
 			},
 			["the maxValue is a negative number"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				maxValue = -19,
 			},
 			["the maxValue is a non-integer number"] = {
-				id = "open-inventory",
-				name = "Taking Inventory",
-				lockedDescription = "Open your inventory.",
-				unlockedDescription = "Opened your inventory.",
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				maxValue = 2.5,
 			},
 		}
@@ -127,47 +128,47 @@ describe("init", function()
 			-- valid with values
 			{
 				id = "pickup-wood",
-				name = "Getting Wood",
-				lockedDescription = "Punch a tree until a block of wood pops out.",
-				unlockedDescription = "Obtained your first block of wood.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				value = true,
 			},
 			{
 				id = "craft-all-tools",
-				name = "MOAR Tools",
-				lockedDescription = "Construct one type of each tool.",
-				unlockedDescription = "Constructed one type of each tool.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				maxValue = 4,
 				value = 3,
 			},
 			-- invalid with values
 			{
 				id = "craft-dispenser",
-				name = "Dispense with This",
-				lockedDescription = "Construct a dispenser.",
-				unlockedDescription = "Constructed a dispenser.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				value = 64,
 			},
 			{
 				id = "playtime-100-days",
-				name = "Passing the Time",
-				lockedDescription = "Play for 100 days.",
-				unlockedDescription = "Played for 100 days.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				maxValue = 100,
 				value = 9001,
 			},
 			{
 				id = "craft-porkchop",
-				name = "Pork Chop",
-				lockedDescription = "Cook and eat a pork chop.",
-				unlockedDescription = "Cooked and ate a pork chop.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				value = { cooked = true, ate = 0 },
 			},
 			{
 				id = "pickup-emeralds",
-				name = "The Haggler",
-				lockedDescription = "Acquire or spend 30 Emeralds by trading with villagers.",
-				unlockedDescription = "Acquired or spent 30 Emeralds by trading with villagers.",
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
 				maxValue = 30,
 				value = { villager = 300, wandering_trader = 24 },
 			},
@@ -184,15 +185,14 @@ describe("init", function()
 	end)
 
 	it("should make achievements available after init", function()
-		local achDefs = defs.generate({
-			{
-				id = "enter-all-biomes",
-				name = "Adventuring Time",
-				lockedDescription = "Discover 17 biomes.",
-				unlockedDescription = "Discovered 17 biomes.",
-				maxValue = 17,
-			},
-		})
+		local ach = {
+			id = "enter-all-biomes",
+			name = "Adventuring Time",
+			lockedDescription = "Discover 17 biomes.",
+			unlockedDescription = "Discovered 17 biomes.",
+			maxValue = 17,
+		}
+		local achDefs = defs.generate({ ach })
 		achievements.init(achDefs)
 
 		local expected = {

@@ -1,45 +1,48 @@
 require("source.achievements")
 require("test.support.json")
 local defs = require("test.support.defs")
+local rstring = require("test.support.rstring")
 
 describe("isGranted", function()
+	local booleanAchId = rstring()
+	local numericAchId = rstring()
 	local achDefs = defs.generate({
 		{
-			id = "pickup-wood",
-			name = "Getting Wood",
-			lockedDescription = "Punch a tree until a block of wood pops out.",
-			unlockedDescription = "Obtained your first block of wood.",
+			id = booleanAchId,
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
 		},
 		{
-			id = "craft-all-tools",
-			name = "MOAR Tools",
-			lockedDescription = "Construct one type of each tool.",
-			unlockedDescription = "Constructed one type of each tool.",
+			id = numericAchId,
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
 			maxValue = 4,
 		},
 	})
 	achievements.init(achDefs)
 
 	it("should return true or false for boolean achievements", function()
-		assert.is.False(achievements.isGranted("pickup-wood"))
+		assert.is.False(achievements.isGranted(booleanAchId))
 
-		achievements.grant("pickup-wood")
+		achievements.grant(booleanAchId)
 
-		assert.is.True(achievements.isGranted("pickup-wood"))
+		assert.is.True(achievements.isGranted(booleanAchId))
 	end)
 
 	it("should return false for numeric achievements below maxValue", function()
-		assert.is.False(achievements.isGranted("craft-all-tools"))
+		assert.is.False(achievements.isGranted(numericAchId))
 	end)
 
 	it("should return true for numeric achievements at maxValue", function()
-		achievements.increment("craft-all-tools", 100)
-		assert.is.True(achievements.isGranted("craft-all-tools"))
+		achievements.increment(numericAchId, 100)
+		assert.is.True(achievements.isGranted(numericAchId))
 	end)
 
 	it("should not work for non-existent achievement", function()
 		assert.has.error(function()
-			achievements.isGranted("play-terraria")
+			achievements.isGranted(rstring())
 		end)
 	end)
 end)
