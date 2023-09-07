@@ -1,9 +1,17 @@
-require("source.achievements")
-require("test.support.json")
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
 
 describe("init", function()
+	before_each(function()
+		_G.achievements = require("source.achievements")
+		_G.json = require("test.support.json")
+	end)
+
+	after_each(function()
+		_G.achievements = nil
+		_G.json = nil
+	end)
+
 	it("should load a valid achievement definition without error", function()
 		local achDefs = defs.generate({
 			{
@@ -186,136 +194,98 @@ describe("init", function()
 
 	it("should make achievements available after init", function()
 		local ach = {
-			id = "enter-all-biomes",
-			name = "Adventuring Time",
-			lockedDescription = "Discover 17 biomes.",
-			unlockedDescription = "Discovered 17 biomes.",
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
 			maxValue = 17,
 		}
 		local achDefs = defs.generate({ ach })
+
 		achievements.init(achDefs)
 
-		local expected = {
-			id = "enter-all-biomes",
-			name = "Adventuring Time",
-			lockedDescription = "Discover 17 biomes.",
-			unlockedDescription = "Discovered 17 biomes.",
-			maxValue = 17,
-			value = 0,
-		}
-		local actual = achievements.get("enter-all-biomes")
-
-		assert.are.same(expected, actual)
+		ach.value = 0
+		assert.are.same(ach, achievements.get(ach.id))
 	end)
 
 	it("should load valid achievement data from a file", function()
-		local achDefs = defs.generate({
-			{
-				id = "pickup-wood",
-				name = "Getting Wood",
-				lockedDescription = "Punch a tree until a block of wood pops out.",
-				unlockedDescription = "Obtained your first block of wood.",
-			},
-			{
-				id = "craft-all-tools",
-				name = "MOAR Tools",
-				lockedDescription = "Construct one type of each tool.",
-				unlockedDescription = "Constructed one type of each tool.",
-				maxValue = 4,
-			},
-		})
-		local achData = defs.generate({
-			{
-				id = "pickup-wood",
-				name = "Getting Wood",
-				lockedDescription = "Punch a tree until a block of wood pops out.",
-				unlockedDescription = "Obtained your first block of wood.",
-				value = true,
-			},
-			{
-				id = "craft-all-tools",
-				name = "MOAR Tools",
-				lockedDescription = "Construct one type of each tool.",
-				unlockedDescription = "Constructed one type of each tool.",
-				maxValue = 4,
-				value = 3,
-			},
-		})
+		local booleanAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+		}
+		local numericAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			maxValue = 4,
+		}
+		local achDefs = defs.generate({ booleanAch, numericAch })
+		booleanAch.value = true
+		numericAch.value = 3
+		local achData = defs.generate({ booleanAch, numericAch })
 
 		json.encodeToFile("achievements.json", achData)
 		achievements.init(achDefs)
 
-		assert.is.True(achievements.get("pickup-wood").value == true)
-		assert.is.True(achievements.get("craft-all-tools").value == 3)
+		assert.is.same(booleanAch, achievements.get(booleanAch.id))
+		assert.is.same(numericAch, achievements.get(numericAch.id))
 	end)
 
 	it("should not include achievements from file not in definitions", function()
-		local achDefs = defs.generate({
-			{
-				id = "pickup-wood",
-				name = "Getting Wood",
-				lockedDescription = "Punch a tree until a block of wood pops out.",
-				unlockedDescription = "Obtained your first block of wood.",
-			},
-		})
-		local achData = defs.generate({
-			{
-				id = "pickup-wood",
-				name = "Getting Wood",
-				lockedDescription = "Punch a tree until a block of wood pops out.",
-				unlockedDescription = "Obtained your first block of wood.",
-				value = true,
-			},
-			{
-				id = "craft-all-tools",
-				name = "MOAR Tools",
-				lockedDescription = "Construct one type of each tool.",
-				unlockedDescription = "Constructed one type of each tool.",
-				maxValue = 4,
-				value = 3,
-			},
-		})
+		local booleanAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+		}
+		local numericAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			maxValue = 4,
+		}
+		local achDefs = defs.generate({ booleanAch })
+		booleanAch.value = true
+		numericAch.value = 3
+		local achData = defs.generate({ booleanAch, numericAch })
 
 		json.encodeToFile("achievements.json", achData)
 		achievements.init(achDefs)
 
-		assert.is.True(achievements.get("pickup-wood").value == true)
+		assert.is.same(booleanAch, achievements.get(booleanAch.id))
 		assert.has.error(function()
-			achievements.get("craft-all-tools")
+			achievements.get(numericAch.id)
 		end)
 	end)
 
 	it("should include achievements not from file but in definitions", function()
-		local achDefs = defs.generate({
-			{
-				id = "pickup-wood",
-				name = "Getting Wood",
-				lockedDescription = "Punch a tree until a block of wood pops out.",
-				unlockedDescription = "Obtained your first block of wood.",
-			},
-			{
-				id = "craft-all-tools",
-				name = "MOAR Tools",
-				lockedDescription = "Construct one type of each tool.",
-				unlockedDescription = "Constructed one type of each tool.",
-				maxValue = 4,
-			},
-		})
-		local achData = defs.generate({
-			{
-				id = "pickup-wood",
-				name = "Getting Wood",
-				lockedDescription = "Punch a tree until a block of wood pops out.",
-				unlockedDescription = "Obtained your first block of wood.",
-				value = true,
-			},
-		})
+		local booleanAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+		}
+		local numericAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			maxValue = 4,
+		}
+		local achDefs = defs.generate({ booleanAch, numericAch })
+		booleanAch.value = true
+		numericAch.value = 0
+		local achData = defs.generate({ booleanAch })
 
 		json.encodeToFile("achievements.json", achData)
 		achievements.init(achDefs)
 
-		assert.is.True(achievements.get("pickup-wood").value == true)
-		assert.is.True(achievements.get("craft-all-tools").value == 0)
+		assert.is.same(booleanAch, achievements.get(booleanAch.id))
+		assert.is.same(numericAch, achievements.get(numericAch.id))
 	end)
 
 	it("should not work if no achievements are defined", function()
