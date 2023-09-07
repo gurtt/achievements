@@ -288,6 +288,58 @@ describe("init", function()
 		assert.is.same(numericAch, achievements.get(numericAch.id))
 	end)
 
+	it("should load definition as boolean if saved data is numeric", function()
+		local achId = rstring()
+		local booleanAch = {
+			id = achId,
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			value = false,
+		}
+		local numericAch = {
+			id = achId,
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			maxValue = 4,
+			value = 3,
+		}
+		local achDefs = defs.generate({ booleanAch })
+		local achData = defs.generate({ numericAch })
+
+		json.encodeToFile("achievements.json", achData)
+		achievements.init(achDefs)
+
+		assert.is.same(booleanAch, achievements.get(achId))
+	end)
+
+	it("should load definition as numeric if saved data is boolean", function()
+		local achId = rstring()
+		local booleanAch = {
+			id = achId,
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			value = true,
+		}
+		local numericAch = {
+			id = achId,
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			maxValue = 4,
+			value = 0,
+		}
+		local achDefs = defs.generate({ numericAch })
+		local achData = defs.generate({ booleanAch })
+
+		json.encodeToFile("achievements.json", achData)
+		achievements.init(achDefs)
+
+		assert.is.same(numericAch, achievements.get(achId))
+	end)
+
 	it("should not work if no achievements are defined", function()
 		local achDefs = defs.generate({})
 
