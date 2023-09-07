@@ -1,9 +1,9 @@
-local defs = require("test.support.defs")
-local rstring = require("test.support.rstring")
+local defs = require("defs")
+local rstring = require("rstring")
 
 describe("get", function()
 	before_each(function()
-		_G.achievements = require("source.achievements")
+		_G.achievements = require("achievements")
 
 		_G.ach = {
 			id = rstring(),

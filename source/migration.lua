@@ -1,4 +1,4 @@
-local deepCopy = require("source.deepcopy")
+local deepCopy = require("deepcopy")
 local CURRENT_SCHEMA_VERSION = 3
 
 ---Migrates a table of achievement data to the current schema version.

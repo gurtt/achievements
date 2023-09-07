@@ -3,7 +3,7 @@ local rstring = require("test.support.rstring")
 
 describe("grant", function()
 	before_each(function()
-		_G.achievements = require("source.achievements")
+		_G.achievements = require("achievements")
 
 		_G.booleanAchId = rstring()
 		_G.numericAchId = rstring()

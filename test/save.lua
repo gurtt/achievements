@@ -3,7 +3,7 @@ local rstring = require("test.support.rstring")
 
 describe("save", function()
 	before_each(function()
-		_G.achievements = require("source.achievements")
+		_G.achievements = require("achievements")
 		_G.json = require("test.support.json")
 	end)
 

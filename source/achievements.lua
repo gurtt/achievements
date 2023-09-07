@@ -1,5 +1,5 @@
-local deepCopy = require("source.deepCopy")
-local migrate = require("source.migration")
+local deepCopy = require("deepCopy")
+local migrate = require("migration")
 ---Path where the achievements data for the game is saved.
 ---@type string
 local PRIVATE_ACHIEVEMENTS_PATH = "achievements.json"

@@ -10,5 +10,5 @@ jobs:
       - name: Run Busted
         uses: lunarmodules/busted@v2.2.0
         with:
-          args: --exclude-pattern=test/support/* test/*
+          args: --lpath="./source/?.lua;./test/support/?.lua" --pattern=".*" test
 

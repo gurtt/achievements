@@ -1,11 +1,9 @@
-require("source.achievements")
-require("test.support.json")
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
 
 describe("isGranted", function()
 	before_each(function()
-		_G.achievements = require("source.achievements")
+		_G.achievements = require("achievements")
 
 		_G.booleanAchId = rstring()
 		_G.numericAchId = rstring()

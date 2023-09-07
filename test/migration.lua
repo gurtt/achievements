@@ -1,4 +1,4 @@
-local migrate = require("source.migration")
+local migrate = require("migration")
 
 describe("migrate", function()
 	describe("should not migrate if the minimum schema is", function()
