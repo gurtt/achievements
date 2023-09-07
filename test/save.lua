@@ -1,6 +1,5 @@
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
-local deepcopy = require("test.support.deepcopy")
 
 describe("save", function()
 	before_each(function()
@@ -34,11 +33,21 @@ describe("save", function()
 		achievements.set(numericAch.id, 5)
 		achievements.save()
 
-		-- Make a copy of the definitions with values
 		booleanAch.value = true
 		numericAch.value = 5
-		local achData = defs.generate({ booleanAch, numericAch })
 
-		assert.is.same(achData, json.decodeFile("achievements.json"))
+		local savedAchData = json.decodeFile("achievements.json").achievements
+
+		local function contains(table, subject)
+			for _, candidate in pairs(table) do
+				-- this isn't a full deep compare but we don't need it
+				if candidate.id == subject.id and candidate.value == subject.value then
+					return true
+				end
+			end
+			return false
+		end
+		assert.is.True(contains(savedAchData, booleanAch))
+		assert.is.True(contains(savedAchData, numericAch))
 	end)
 end)

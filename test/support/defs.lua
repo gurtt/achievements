@@ -13,12 +13,7 @@ function defs.generate(defTable)
 
 	defCollection.achievements = {}
 	for _, def in pairs(defTable) do
-		-- add the definition keyed with its ID if present, or with a numeric key otherwise. Allows testing for definitions with a missing id
-		if def.id then
-			defCollection.achievements[def.id] = deepcopy(def)
-		else
-			table.insert(defCollection, deepcopy(def))
-		end
+		table.insert(defCollection.achievements, deepcopy(def))
 	end
 
 	return defCollection

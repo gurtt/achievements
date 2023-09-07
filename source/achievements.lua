@@ -171,7 +171,7 @@ local function load(minimumSchemaVersion)
 
 	-- Copy saved data to achievements
 	local sAch = {}
-	for _, ach in pairs(savedData.achievements) do
+	for _, ach in ipairs(savedData.achievements) do
 		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
 			if type(ach[key]) ~= "string" or ach[key] == "" then
 				error("Achievement data at index " .. i .. " has invalid " .. key .. ": " .. ach[key])
@@ -229,7 +229,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 
 	-- Load achievements from definitions
 	local numAchDef = 0
-	for _, achDef in pairs(achievementDefs.achievements) do
+	for _, achDef in ipairs(achievementDefs.achievements) do
 		numAchDef = numAchDef + 1
 		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
 			if type(achDef[key]) ~= "string" or achDef[key] == "" then
@@ -295,7 +295,10 @@ function achievements.save()
 	local savedData = {}
 
 	savedData["$schema"] = SCHEMA_URL
-	savedData.achievements = achievements.kAchievements
+	savedData.achievements = {}
+	for _, ach in pairs(achievements.kAchievements) do
+		table.insert(savedData.achievements, ach)
+	end
 
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, savedData)
 end
