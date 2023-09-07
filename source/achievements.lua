@@ -1,4 +1,5 @@
 local deepCopy = require("source.deepCopy")
+local migrate = require("source.migration")
 ---Path where the achievements data for the game is saved.
 ---@type string
 local PRIVATE_ACHIEVEMENTS_PATH = "achievements.json"
@@ -81,29 +82,6 @@ function achievements.set(achievementID, value)
 	end
 end
 
----Migrate data from an old schema version to the current version.
----@param data any The decoded JSON data of the old version.
----@param version any The determined version of `data`.
----@return any
-local function migrate(data, version)
-	local achievements = {}
-
-	-- https://raw.githubusercontent.com/gurtt/pd-achievements/v1.0.0/schema/achievements-v1.schema.json
-	if version == 1 then
-		for i, ach in pairs(data.achievements) do
-			achievements[i] = {
-				id = ach.id,
-				name = ach.id,
-				lockedDescription = ach.id,
-				unlockedDescription = ach.id,
-				value = ach.isGranted or false,
-			}
-		end
-	end
-
-	return achievements
-end
-
 ---Loads saved achievement data for the game.
 ---@param minimumSchemaVersion? number The earliest version of the achievements data schema to try migrating from. If unspecified, migration is disabled.
 local function load(minimumSchemaVersion)
@@ -162,6 +140,8 @@ local function load(minimumSchemaVersion)
 	if type(savedData.achievements) ~= "table" then
 		error("Saved data has invalid achievements data of type " .. type(savedData.achievements) .. '"')
 	end
+
+	migrate(savedData, minimumVersion)
 
 	-- Copy saved data to achievements
 	local sAch = {}
