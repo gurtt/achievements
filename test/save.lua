@@ -1,5 +1,6 @@
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
+local deepcopy = require("test.support.deepcopy")
 
 describe("save", function()
 	before_each(function()
@@ -13,18 +14,31 @@ describe("save", function()
 	end)
 
 	it("saves achievements when called", function()
-		local ach = {
+		local booleanAch = {
 			id = rstring(),
 			name = rstring(),
 			lockedDescription = rstring(),
 			unlockedDescription = rstring(),
 		}
-		local achDefs = defs.generate({ ach })
+		local numericAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			maxValue = 10,
+		}
+		local achDefs = defs.generate({ booleanAch, numericAch })
 		achievements.init(achDefs)
 
-		achievements.grant(ach.id)
+		achievements.set(booleanAch.id, true)
+		achievements.set(numericAch.id, 5)
 		achievements.save()
 
-		-- TODO: Inspect file in JSON table
+		-- Make a copy of the definitions with values
+		booleanAch.value = true
+		numericAch.value = 5
+		local achData = defs.generate({ booleanAch, numericAch })
+
+		assert.is.same(achData, json.decodeFile("achievements.json"))
 	end)
 end)
