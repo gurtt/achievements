@@ -26,6 +26,21 @@ achievements = {}
 ---@class (exact) AchievementDefinitions
 ---@field achievements Achievement[]
 
+local function deepcopy(orig)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == "table" then
+		copy = {}
+		for orig_key, orig_value in next, orig, nil do
+			copy[deepcopy(orig_key)] = deepcopy(orig_value)
+		end
+		setmetatable(copy, deepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
+end
+
 ---Get the specified achievement.
 ---@param achievementID string The ID of the achievement to get.
 ---@return Achievement # The achievement.
@@ -97,12 +112,14 @@ end
 
 ---Loads saved achievement data for the game.
 ---@param minimumSchemaVersion? number The earliest version of the achievements data schema to try migrating from. If unspecified, migration is disabled.
-local function loadSavedData(minimumSchemaVersion)
+local function load(minimumSchemaVersion)
 	if minimumSchemaVersion and type(minimumSchemaVersion) ~= "number" then
 		error("Invalid minimum schema number type " .. type(minimumSchemaVersion) .. " (expected number)")
 	end
 
-	if minimumSchemaVersion > CURRENT_SCHEMA_VERSION then
+	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
+
+	if minimumVersion > CURRENT_SCHEMA_VERSION then
 		error(
 			"Minimum schema version is newer than the current schema version ("
 				.. CURRENT_SCHEMA_VERSION
@@ -110,12 +127,14 @@ local function loadSavedData(minimumSchemaVersion)
 		)
 	end
 
+	-- Check if saved data exists
 	local savedData = json.decodeFile(PRIVATE_ACHIEVEMENTS_PATH)
 
 	if not savedData then
 		return
 	end
 
+	-- Check schema for saved data
 	if type(savedData["$schema"]) ~= "string" then
 		error("Invalid schema type " .. type(savedData["$schema"]) .. " (expected string)")
 	end
@@ -123,15 +142,13 @@ local function loadSavedData(minimumSchemaVersion)
 	local savedDataVersion = tonumber(
 		string.match(
 			savedData["$schema"],
-			"https://raw%.githubusercontent%.com/gurtt/achievements/v(\\d+)%.\\d+%.\\d+/achievements%.schema%.json"
+			"https://raw%.githubusercontent%.com/gurtt/achievements/v(%d+)%.%d+%.%d+/achievements%.schema%.json"
 		)
 	)
 
 	if not savedDataVersion then
 		error('Could not determine schema version from schema "' .. savedData["$schema"] .. '"')
 	end
-
-	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
 
 	if savedDataVersion < minimumVersion then
 		error(
@@ -143,12 +160,7 @@ local function loadSavedData(minimumSchemaVersion)
 		)
 	end
 
-	if savedDataVersion == CURRENT_SCHEMA_VERSION then
-		return
-	end
-
-	savedData.achievements = migrate(savedData.achievements, savedDataVersion)
-
+	-- Check contents of saved data
 	if not savedData.achievements then
 		error("Saved data has no achievements")
 	end
@@ -157,18 +169,20 @@ local function loadSavedData(minimumSchemaVersion)
 		error("Saved data has invalid achievements data of type " .. type(savedData.achievements) .. '"')
 	end
 
-	for _, ach in ipairs(savedData.achievements) do
+	-- Copy saved data to achievements
+	local sAch = {}
+	for _, ach in pairs(savedData.achievements) do
 		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
 			if type(ach[key]) ~= "string" or ach[key] == "" then
 				error("Achievement data at index " .. i .. " has invalid " .. key .. ": " .. ach[key])
 			end
 		end
 
-		if achievements.kAchievements[ach.id] then
+		if sAch[ach.id] then
 			error('Duplicate achievement ID "' .. ach.id .. '"')
 		end
 
-		if type(ach.maxValue) ~= "nil" then
+		if type(ach.maxValue) ~= "nil" then -- saved ach is numeric
 			if type(ach.maxValue) ~= "number" or ach.maxValue % 1 ~= 0 or ach.maxValue < 1 then
 				error('Achievement data "' .. ach.id .. '" has invalid maxValue ' .. ach.maxValue)
 			end
@@ -178,7 +192,7 @@ local function loadSavedData(minimumSchemaVersion)
 					'Achievement data"' .. ach.id .. '"has invalid value type' .. type(ach.value)(" (expected number)")
 				)
 			end
-		else
+		else -- saved ach is boolean
 			if type(ach.value) ~= "boolean" then
 				error(
 					'Achievement data"'
@@ -190,8 +204,10 @@ local function loadSavedData(minimumSchemaVersion)
 			end
 		end
 
-		achievements.kAchievements[ach.id] = ach
+		sAch[ach.id] = deepcopy(ach)
 	end
+
+	return sAch
 end
 
 ---Set up the achievements system.
@@ -205,24 +221,20 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	end
 
 	-- Load achievements from saved data
-	xpcall(loadSavedData, function(msg)
+	local status, sAch = xpcall(load, function(msg)
 		warn("Error loading saved achievement data: " .. msg)
-		-- Clean up any achievements loaded before the error
-		achievements.kAchievements = {}
 	end, minimumSchemaVersion)
+
+	achievements.kAchievements = {}
 
 	-- Load achievements from definitions
 	local numAchDef = 0
-	for _, achDef in ipairs(achievementDefs.achievements) do
+	for _, achDef in pairs(achievementDefs.achievements) do
 		numAchDef = numAchDef + 1
 		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
 			if type(achDef[key]) ~= "string" or achDef[key] == "" then
 				error("Achievement definition at index " .. i .. " has invalid " .. key .. ": " .. achDef[key], 2)
 			end
-		end
-
-		if achievements.kAchievements[achDef.id] then
-			break
 		end
 
 		if type(achDef.maxValue) ~= "nil" then
@@ -238,10 +250,35 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 			warn('Achievement definition "' .. achDef.id .. '" has a value. Is this a data table?')
 		end
 
-		if achDef.maxValue then
-			achDef.value = 0
+		-- HACK: This is grotesque. So is all of the surrounding code.
+		if sAch and sAch[achDef.id] and sAch[achDef.id].value then -- there's saved data for this definition
+			if achDef.maxValue then
+				if type(sAch[achDef.id].value) == "number" then
+					achDef.value = sAch[achDef.id].value
+				else
+					warn(
+						"Achievment definition and saved data for "
+							.. achDef.id
+							.. "are different types. Ignoring saved data."
+					)
+				end
+			else
+				if type(sAch[achDef.id].value) == "boolean" then
+					achDef.value = sAch[achDef.id].value
+				else
+					warn(
+						"Achievment definition and saved data for "
+							.. achDef.id
+							.. "are different types. Ignoring saved data."
+					)
+				end
+			end
 		else
-			achDef.value = false
+			if achDef.maxValue then
+				achDef.value = 0
+			else
+				achDef.value = false
+			end
 		end
 
 		achievements.kAchievements[achDef.id] = achDef
