@@ -4,27 +4,37 @@ local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
 
 describe("increment", function()
-	local booleanAchId = rstring()
-	local numericAchId = rstring()
-	local achDefs = defs.generate({
-		{
-			id = booleanAchId,
-			name = rstring(),
-			lockedDescription = rstring(),
-			unlockedDescription = rstring(),
-		},
-		{
-			id = numericAchId,
-			name = rstring(),
-			lockedDescription = rstring(),
-			unlockedDescription = rstring(),
-			maxValue = 4,
-		},
-	})
-	achievements.init(achDefs)
+	before_each(function()
+		_G.achievements = require("source.achievements")
+
+		_G.booleanAchId = rstring()
+		_G.numericAchId = rstring()
+		_G.achDefs = defs.generate({
+			{
+				id = booleanAchId,
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
+			},
+			{
+				id = numericAchId,
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
+				maxValue = 4,
+			},
+		})
+		achievements.init(achDefs)
+	end)
+
+	after_each(function()
+		_G.achievements = nil
+		_G.booleanAchId = nil
+		_G.numericAchId = nil
+		_G.achDefs = nil
+	end)
 
 	it("should increment numeric achievement by 1", function()
-		achievements.set(numericAchId, 0)
 		local didChange = achievements.increment(numericAchId)
 
 		assert(achievements.get(numericAchId).value == 1)
@@ -64,7 +74,6 @@ describe("increment", function()
 	end)
 
 	it("should do nothing if decremented while at 0", function()
-		achievements.set(numericAchId, 0)
 		local didChange = achievements.increment(numericAchId, -100)
 
 		assert(achievements.get(numericAchId).value == 0)
