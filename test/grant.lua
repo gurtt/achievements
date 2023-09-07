@@ -1,31 +1,38 @@
-require("source.achievements")
-require("test.support.json")
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
 
 describe("grant", function()
-	local booleanAchId = rstring()
-	local numericAchId = rstring()
-	local achDefs = defs.generate({
-		{
-			id = booleanAchId,
-			name = rstring(),
-			lockedDescription = rstring(),
-			unlockedDescription = rstring(),
-		},
-		{
-			id = numericAchId,
-			name = rstring(),
-			lockedDescription = rstring(),
-			unlockedDescription = rstring(),
-			maxValue = 4,
-		},
-	})
-	achievements.init(achDefs)
+	before_each(function()
+		_G.achievements = require("source.achievements")
+
+		_G.booleanAchId = rstring()
+		_G.numericAchId = rstring()
+		_G.achDefs = defs.generate({
+			{
+				id = booleanAchId,
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
+			},
+			{
+				id = numericAchId,
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
+				maxValue = 4,
+			},
+		})
+		achievements.init(achDefs)
+	end)
+
+	after_each(function()
+		_G.achievements = nil
+		_G.booleanAchId = nil
+		_G.numericAchId = nil
+		_G.achDefs = nil
+	end)
 
 	it("should grant boolean achievement when not already granted", function()
-		assert(achievements.get(booleanAchId).value == false)
-
 		local didChange = achievements.grant(booleanAchId)
 
 		assert(achievements.get(booleanAchId).value == true)
@@ -33,7 +40,7 @@ describe("grant", function()
 	end)
 
 	it("should work if boolean achievement was already granted", function()
-		assert(achievements.get(booleanAchId).value == true)
+		achievements.grant(booleanAchId)
 
 		local didChange = achievements.grant(booleanAchId)
 
@@ -42,8 +49,6 @@ describe("grant", function()
 	end)
 
 	it("should not work for numeric achievements", function()
-		assert(achievements.get(numericAchId).value == 0)
-
 		assert.has.error(function()
 			achievements.grant(numericAchId)
 		end)
