@@ -39,7 +39,8 @@ describe("save", function()
 		local savedAchData = json.decodeFile("achievements.json").achievements
 
 		local function contains(table, subject)
-			for _, candidate in pairs(table) do
+			-- using ipairs because saved data shouldn't be keyed anymore
+			for _, candidate in ipairs(table) do
 				-- this isn't a full deep compare but we don't need it
 				if candidate.id == subject.id and candidate.value == subject.value then
 					return true
