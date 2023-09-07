@@ -1,27 +1,37 @@
 require("source.achievements")
-require("test.support.json")
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
 
 describe("set", function()
-	local booleanAchId = rstring()
-	local numericAchId = rstring()
-	local achDefs = defs.generate({
-		{
-			id = booleanAchId,
-			name = rstring(),
-			lockedDescription = rstring(),
-			unlockedDescription = rstring(),
-		},
-		{
-			id = numericAchId,
-			name = rstring(),
-			lockedDescription = rstring(),
-			unlockedDescription = rstring(),
-			maxValue = 4,
-		},
-	})
-	achievements.init(achDefs)
+	before_each(function()
+		_G.achievements = require("source.achievements")
+
+		_G.booleanAchId = rstring()
+		_G.numericAchId = rstring()
+		_G.achDefs = defs.generate({
+			{
+				id = booleanAchId,
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
+			},
+			{
+				id = numericAchId,
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
+				maxValue = 4,
+			},
+		})
+		achievements.init(achDefs)
+	end)
+
+	after_each(function()
+		_G.achievements = nil
+		_G.booleanAchId = nil
+		_G.numericAchId = nil
+		_G.achDefs = nil
+	end)
 
 	it("should set the value of boolean achievements", function()
 		achievements.set(booleanAchId, true)
