@@ -1,5 +1,4 @@
----@diagnostic disable-next-line: lowercase-global
-json = {}
+local json = {}
 
 json.files = {}
 
@@ -17,3 +16,5 @@ end
 function json.encodeToFile(path, table)
 	json.files[path] = table
 end
+
+return json
