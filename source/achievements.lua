@@ -1,14 +1,13 @@
--- Achievements for Playdate
-
+local deepCopy = require("deepCopy")
 ---Path where the achievements data for the game is saved.
 ---@type string
 local PRIVATE_ACHIEVEMENTS_PATH = "achievements.json"
 
----The current achievements data schema version.
+---Current achievements data schema version.
 ---@type number
 local CURRENT_SCHEMA_VERSION = 2
 
----The URL for the current schema definition.
+---URL for the current schema definition.
 ---@type string
 local SCHEMA_URL = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
 
@@ -25,21 +24,6 @@ achievements = {}
 
 ---@class (exact) AchievementDefinitions
 ---@field achievements Achievement[]
-
-local function deepcopy(orig)
-	local orig_type = type(orig)
-	local copy
-	if orig_type == "table" then
-		copy = {}
-		for orig_key, orig_value in next, orig, nil do
-			copy[deepcopy(orig_key)] = deepcopy(orig_value)
-		end
-		setmetatable(copy, deepcopy(getmetatable(orig)))
-	else -- number, string, boolean, etc
-		copy = orig
-	end
-	return copy
-end
 
 ---Get the specified achievement.
 ---@param achievementID string The ID of the achievement to get.
@@ -204,7 +188,7 @@ local function load(minimumSchemaVersion)
 			end
 		end
 
-		sAch[ach.id] = deepcopy(ach)
+		sAch[ach.id] = deepCopy(ach)
 	end
 
 	return sAch
