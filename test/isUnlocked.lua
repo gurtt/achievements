@@ -1,7 +1,7 @@
 local defs = require("test.support.defs")
 local rstring = require("test.support.rstring")
 
-describe("isGranted", function()
+describe("isUnlocked", function()
 	before_each(function()
 		_G.achievements = require("achievements")
 
@@ -33,25 +33,25 @@ describe("isGranted", function()
 	end)
 
 	it("should return true or false for boolean achievements", function()
-		assert.is.False(achievements.isGranted(booleanAchId))
+		assert.is.False(achievements.isUnlocked(booleanAchId))
 
-		achievements.grant(booleanAchId)
+		achievements.unlock(booleanAchId)
 
-		assert.is.True(achievements.isGranted(booleanAchId))
+		assert.is.True(achievements.isUnlocked(booleanAchId))
 	end)
 
 	it("should return false for numeric achievements below maxValue", function()
-		assert.is.False(achievements.isGranted(numericAchId))
+		assert.is.False(achievements.isUnlocked(numericAchId))
 	end)
 
 	it("should return true for numeric achievements at maxValue", function()
 		achievements.increment(numericAchId, 100)
-		assert.is.True(achievements.isGranted(numericAchId))
+		assert.is.True(achievements.isUnlocked(numericAchId))
 	end)
 
 	it("should not work for non-existent achievement", function()
 		assert.has.error(function()
-			achievements.isGranted(rstring())
+			achievements.isUnlocked(rstring())
 		end)
 	end)
 end)

@@ -63,14 +63,14 @@ function achievements.set(achievementID, value)
 			error("Invalid numeric value (expected integer)", 2)
 		end
 
-		local wasUnlocked = achievements.isGranted(ach.id)
+		local wasUnlocked = achievements.isUnlocked(ach.id)
 		ach.value = math.min(value, ach.maxValue)
 
-		if (not wasUnlocked) and achievements.isGranted(ach.id) then
+		if (not wasUnlocked) and achievements.isUnlocked(ach.id) then
 			ach.unlockedAt = os.time()
 		end
 
-		if wasUnlocked and (not achievements.isGranted(ach.id)) then
+		if wasUnlocked and (not achievements.isUnlocked(ach.id)) then
 			ach.unlockedAt = nil
 		end
 	else
@@ -293,9 +293,18 @@ end
 
 ---Grant the specified achievement if it is a boolean achievement.
 -- This only works for boolean achievements. For numeric achievements, use `set` or `increment`.
----@param achievementID string The ID of the achievement to grant.
+---@param achievementID string The ID of the achievement to unlock.
 ---@return boolean # Whether or not the value of the achievement was changed.
+---@deprecated Use unlock
 function achievements.grant(achievementID)
+	return achievements.unlock(achievementID)
+end
+
+---Grant the specified achievement if it is a boolean achievement.
+-- This only works for boolean achievements. For numeric achievements, use `set` or `increment`.
+---@param achievementID string The ID of the achievement to unlock.
+---@return boolean # Whether or not the value of the achievement was changed.
+function achievements.unlock(achievementID)
 	local ach = achievements.get(achievementID)
 
 	if ach.maxValue then
@@ -312,7 +321,7 @@ function achievements.grant(achievementID)
 end
 
 ---Increments the specified achievement by some amount.
--- This only works for numeric achievements. For boolean achievements, use `set` or `grant`.
+-- This only works for numeric achievements. For boolean achievements, use `set` or `unlock`.
 ---@param achievementID string The ID of the achievement to increment.
 ---@param increment? number The amount to increment by. Default is 1.
 ---@return boolean # Whether or not the value of the achievement was changed.
@@ -331,7 +340,7 @@ function achievements.increment(achievementID, increment)
 	local ach = achievements.get(achievementID)
 
 	if not ach.maxValue then
-		error('Achievement "' .. ach.id .. '" is boolean; use set() or grant()', 2)
+		error('Achievement "' .. ach.id .. '" is boolean; use set() or unlock()', 2)
 	end
 
 	if ach.value == ach.maxValue then
@@ -346,10 +355,18 @@ function achievements.increment(achievementID, increment)
 	return true
 end
 
----Check if the specified achievement has been granted.
+---Check if the specified achievement has been unlocked.
 ---@param achievementID string The ID of the achievement to check.
----@return boolean isGranted Whether or not the achievement has been granted.
+---@return boolean isGranted Whether or not the achievement has been unlocked.
+---@deprecated Use isUnlocked
 function achievements.isGranted(achievementID)
+	return achievements.isUnlocked(achievementID)
+end
+
+---Check if the specified achievement has been unlocked.
+---@param achievementID string The ID of the achievement to check.
+---@return boolean isGranted Whether or not the achievement has been unlocked.
+function achievements.isUnlocked(achievementID)
 	local ach = achievements.get(achievementID)
 
 	if ach.maxValue then

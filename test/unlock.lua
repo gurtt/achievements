@@ -33,7 +33,7 @@ describe("grant", function()
 	end)
 
 	it("should grant boolean achievement when not already granted", function()
-		local didChange = achievements.grant(booleanAchId)
+		local didChange = achievements.unlock(booleanAchId)
 
 		assert(achievements.get(booleanAchId).value == true)
 		assert(math.abs(achievements.get(booleanAchId).unlockedAt - os.time()) < 2)
@@ -41,9 +41,9 @@ describe("grant", function()
 	end)
 
 	it("should work if boolean achievement was already granted", function()
-		achievements.grant(booleanAchId)
+		achievements.unlock(booleanAchId)
 
-		local didChange = achievements.grant(booleanAchId)
+		local didChange = achievements.unlock(booleanAchId)
 
 		assert(achievements.get(booleanAchId).value == true)
 		assert.is.False(didChange)
@@ -51,14 +51,14 @@ describe("grant", function()
 
 	it("should not work for numeric achievements", function()
 		assert.has.error(function()
-			achievements.grant(numericAchId)
+			achievements.unlock(numericAchId)
 		end)
 		assert(achievements.get(numericAchId).value == 0)
 	end)
 
 	it("should not work for non-existent achievement", function()
 		assert.has.error(function()
-			achievements.grant(rstring())
+			achievements.unlock(rstring())
 		end)
 	end)
 end)
