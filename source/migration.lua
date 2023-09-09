@@ -7,22 +7,24 @@ local CURRENT_SCHEMA_VERSION = 3
 local function migrate(achData, minimumSchemaVersion)
 	-- Verify the minimum version, if supplied, is valid
 	if minimumSchemaVersion and type(minimumSchemaVersion) ~= "number" then
-		error("Invalid minimum schema number type " .. type(minimumSchemaVersion) .. " (expected number)")
+		error("bad argument #2 to 'migrate' (expected number, got " .. type(minimumSchemaVersion) .. ")", 2)
 	end
 
 	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
 
 	if minimumVersion > CURRENT_SCHEMA_VERSION then
 		error(
-			"Minimum schema version is newer than the current schema version ("
+			"bad argument #2 to 'migrate' (expected <= "
 				.. CURRENT_SCHEMA_VERSION
+				.. ", got "
+				.. minimumVersion
 				.. "). Do you need to update your library?"
 		)
 	end
 
 	-- Check schema for saved data
 	if type(achData["$schema"]) ~= "string" then
-		error("Invalid schema type " .. type(achData["$schema"]) .. " (expected string)")
+		error("invalid type for field '$schema' (expected string, got " .. type(achData["$schema"]) .. ")")
 	end
 
 	local achDataVersion = tonumber(
@@ -33,26 +35,20 @@ local function migrate(achData, minimumSchemaVersion)
 	)
 
 	if not achDataVersion then
-		error('Could not determine schema version from schema "' .. achData["$schema"] .. '"')
+		error("invalid format for field '$schema' ('" .. achData["$schema"] .. "')")
 	end
 
 	if achDataVersion < minimumVersion then
-		error(
-			"Data is older than the minimum supported version: "
-				.. achDataVersion
-				.. " (expected >="
-				.. minimumVersion
-				.. ")"
-		)
+		error("invalid version for saved data (expected >= " .. minimumVersion .. ", got " .. achDataVersion .. ")")
 	end
 
 	-- Check contents of saved data
 	if not achData.achievements then
-		error("Data has no achievements")
+		error("saved data has no achievements")
 	end
 
 	if type(achData.achievements) ~= "table" then
-		error("Data has invalid achievements data of type " .. type(achData.achievements) .. '"')
+		error("invalid type for field 'achievements' (expected table, got " .. type(savedData.achievements) .. ")")
 	end
 
 	local workingData = deepCopy(achData)

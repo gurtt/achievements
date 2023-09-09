@@ -32,13 +32,13 @@ achievements = {}
 ---@return Achievement # The achievement.
 function achievements.get(achievementID)
 	if type(achievementID) ~= "string" then
-		error('Achievement ID "' .. achievementID .. '" is invalid', 2)
+		error("bad argument #1 to 'get' (string expected, got " .. type(achievementID) .. ")", 2)
 	end
 
 	local ach = achievements.kAchievements[achievementID]
 
 	if not ach then
-		error('No achievement with ID "' .. achievementID .. '"', 2)
+		error("attempt to get nil achievement (ID '" .. achievementID .. "')", 2)
 	end
 
 	return ach
@@ -52,15 +52,15 @@ function achievements.set(achievementID, value)
 
 	if ach.maxValue then
 		if type(value) ~= "number" then
-			error('Invalid value type for achievement "' .. ach.id .. '" (expected number)', 2)
+			error("bad argument #2 to 'set' (expected number, got " .. type(value) .. ")", 2)
 		end
 
 		if value < 0 then
-			error("Invalid numeric value (expected >= 0)", 2)
+			error("bad argument #2 to 'set' (expected >= 0, got " .. value .. ")", 2)
 		end
 
 		if value % 1 ~= 0 then
-			error("Invalid numeric value (expected integer)", 2)
+			error("bad argument #2 to 'set' (expected integer, got " .. value .. ")", 2)
 		end
 
 		local wasUnlocked = achievements.isUnlocked(ach.id)
@@ -75,7 +75,7 @@ function achievements.set(achievementID, value)
 		end
 	else
 		if type(value) ~= "boolean" then
-			error('Invalid value type for achievement "' .. ach.id .. '" (expected boolean)', 2)
+			error("bad argument #2 to 'set' (expected boolean, got " .. type(value) .. ")", 2)
 		end
 
 		ach.value = value
@@ -86,15 +86,17 @@ end
 ---@param minimumSchemaVersion? number The earliest version of the achievements data schema to try migrating from. If unspecified, migration is disabled.
 local function load(minimumSchemaVersion)
 	if minimumSchemaVersion and type(minimumSchemaVersion) ~= "number" then
-		error("Invalid minimum schema number type " .. type(minimumSchemaVersion) .. " (expected number)")
+		error("bad argument #1 to 'load' (expected number, got " .. type(minimumSchemaVersion) .. ")", 2)
 	end
 
 	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
 
 	if minimumVersion > CURRENT_SCHEMA_VERSION then
 		error(
-			"Minimum schema version is newer than the current schema version ("
+			"bad argument #1 to 'load' (expected <= "
 				.. CURRENT_SCHEMA_VERSION
+				.. ", got "
+				.. minimumVersion
 				.. "). Do you need to update your library?"
 		)
 	end
@@ -108,7 +110,7 @@ local function load(minimumSchemaVersion)
 
 	-- Check schema for saved data
 	if type(savedData["$schema"]) ~= "string" then
-		error("Invalid schema type " .. type(savedData["$schema"]) .. " (expected string)")
+		error("invalid type for field '$schema' (expected string, got " .. type(savedData["$schema"]) .. ")")
 	end
 
 	local savedDataVersion = tonumber(
@@ -119,26 +121,20 @@ local function load(minimumSchemaVersion)
 	)
 
 	if not savedDataVersion then
-		error('Could not determine schema version from schema "' .. savedData["$schema"] .. '"')
+		error("invalid format for field '$schema' ('" .. savedData["$schema"] .. "')")
 	end
 
 	if savedDataVersion < minimumVersion then
-		error(
-			"Saved data is older than the minimum supported version: "
-				.. savedDataVersion
-				.. " (expected >="
-				.. minimumVersion
-				.. ")"
-		)
+		error("invalid version for saved data (expected >= " .. minimumVersion .. ", got " .. savedDataVersion .. ")")
 	end
 
 	-- Check contents of saved data
 	if not savedData.achievements then
-		error("Saved data has no achievements")
+		error("saved data has no achievements")
 	end
 
 	if type(savedData.achievements) ~= "table" then
-		error("Saved data has invalid achievements data of type " .. type(savedData.achievements) .. '"')
+		error("invalid type for field 'achievements' (expected table, got " .. type(savedData.achievements) .. ")")
 	end
 
 	migrate(savedData, minimumVersion)
@@ -146,46 +142,57 @@ local function load(minimumSchemaVersion)
 	-- Copy saved data to achievements
 	local sAch = {}
 	for _, ach in ipairs(savedData.achievements) do
-		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
-			if type(ach[key]) ~= "string" or ach[key] == "" then
-				error("Achievement data at index " .. i .. " has invalid " .. key .. ": " .. ach[key])
+		for _, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
+			if type(ach[key]) ~= "string" then
+				error("invalid type for field '" .. key .. "' (expected string, got " .. type(ach[key]) .. ")")
+			end
+			if ach[key] == "" then
+				error("invalid value for field '" .. key .. "' (expected non-empty string)")
 			end
 		end
 
 		if sAch[ach.id] then
-			error('Duplicate achievement ID "' .. ach.id .. '"')
+			error("invalid value for field 'ID' (expected unique value)")
 		end
 
 		if type(ach.maxValue) ~= "nil" then -- saved ach is numeric
-			if type(ach.maxValue) ~= "number" or ach.maxValue % 1 ~= 0 or ach.maxValue < 1 then
-				error('Achievement data "' .. ach.id .. '" has invalid maxValue ' .. ach.maxValue)
+			if type(ach.maxValue) ~= "number" then
+				error("invalid type for field 'maxValue' (expected number, got " .. type(ach.maxValue) .. ")")
+			end
+
+			if ach.maxValue % 1 ~= 0 or ach.maxValue < 1 then
+				error("invalid value for field 'maxValue' (expected positive integer, got " .. ach.maxValue .. ")")
 			end
 
 			if type(ach.value) ~= "number" then
-				error(
-					'Achievement data"' .. ach.id .. '"has invalid value type' .. type(ach.value)(" (expected number)")
-				)
+				error("invalid value for field 'value' (expected number, got " .. type(ach.value) .. ")")
 			end
 
 			if ach.value >= ach.maxValue then
-				if type(ach.unlockedAt) ~= "number" or ach.unlockedAt % 1 ~= 0 or ach.unlockedAt < 0 then
-					error('Achievement data "' .. ach.id .. '"has invalid unlockedAt ' .. ach.unlockedAt)
+				if type(ach.unlockedAt) ~= "number" then
+					error("invalid type for field 'unlockedAt' (expected number, got " .. type(ach.unlockedAt) .. ")")
+				end
+
+				if ach.unlockedAt % 1 ~= 0 or ach.unlockedAt < 0 then
+					error(
+						"invalid value for field 'unlockedAt' (expected positive integer, got " .. ach.unlockedAt .. ")"
+					)
 				end
 			end
 		else -- saved ach is boolean
 			if type(ach.value) ~= "boolean" then
-				error(
-					'Achievement data"'
-						.. ach.id
-						.. '"has invalid value type'
-						.. type(ach.value)
-						.. " (expected boolean)"
-				)
+				error("invalid type for field 'value' (expected boolean, got " .. type(ach.value) .. ")")
 			end
 
 			if ach.value == true then
-				if type(ach.unlockedAt) ~= "number" or ach.unlockedAt % 1 ~= 0 or ach.unlockedAt < 0 then
-					error('Achievement data "' .. ach.id .. '"has invalid unlockedAt ' .. ach.unlockedAt)
+				if type(ach.unlockedAt) ~= "number" then
+					error("invalid type for field 'unlockedAt' (expected number, got " .. type(ach.unlockedAt) .. ")")
+				end
+
+				if ach.unlockedAt % 1 ~= 0 or ach.unlockedAt < 0 then
+					error(
+						"invalid value for field 'unlockedAt' (expected positive integer, got " .. ach.unlockedAt .. ")"
+					)
 				end
 			end
 		end
@@ -202,12 +209,18 @@ end
 ---@param achievementDefs AchievementDefinitions The current achievements definitions for the game.
 ---@param minimumSchemaVersion? number The minimum supported version of the achievements schema to support. You only need to specify this if you update your game to use a new version of the achievements system.
 function achievements.init(achievementDefs, minimumSchemaVersion)
-	if achievementDefs == nil or achievementDefs.achievements == nil then
-		error("No achievement defs provided during init", 2)
+	if type(achievementDefs) ~= "table" then
+		error("bad argument #1 to 'init' (expected table, got " .. type(achievementDefs) .. ")", 2)
+	end
+	if type(achievementDefs.achievements) ~= "table" then
+		error(
+			"invalid type for field 'achievements' (expected table, got " .. type(achievementDefs.achievements) .. ")",
+			2
+		)
 	end
 
 	-- Load achievements from saved data
-	local status, sAch = xpcall(load, function(msg)
+	local _, sAch = xpcall(load, function(msg)
 		warn("Error loading saved achievement data: " .. msg)
 	end, minimumSchemaVersion)
 
@@ -217,23 +230,31 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	local numAchDef = 0
 	for _, achDef in ipairs(achievementDefs.achievements) do
 		numAchDef = numAchDef + 1
-		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
-			if type(achDef[key]) ~= "string" or achDef[key] == "" then
-				error("Achievement definition at index " .. i .. " has invalid " .. key .. ": " .. achDef[key], 2)
+		for _, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
+			if type(achDef[key]) ~= "string" then
+				error("invalid type for field '" .. key .. "' (expected string, got " .. type(achDef[key]) .. ")")
+			end
+			if achDef[key] == "" then
+				error("invalid value for field '" .. key .. "' (expected non-empty string)")
 			end
 		end
 
 		if type(achDef.maxValue) ~= "nil" then
-			if type(achDef.maxValue) ~= "number" or achDef.maxValue % 1 ~= 0 or achDef.maxValue < 1 then
-				error(
-					'Achievement definition "' .. achDef.id .. '" has invalid maxValue "' .. achDef.maxValue .. '"',
-					2
-				)
+			if type(achDef.maxValue) ~= "number" then
+				error("invalid type for field 'maxValue' (expected number, got " .. type(achDef.maxValue) .. ")")
+			end
+
+			if achDef.maxValue % 1 ~= 0 or achDef.maxValue < 1 then
+				error("invalid value for field 'maxValue' (expected positive integer, got " .. achdef.maxValue .. ")")
 			end
 		end
 
 		if achDef.value then
-			warn('Achievement definition "' .. achDef.id .. '" has a value. Is this a data table?')
+			warn(
+				"invalid value for field 'value' (expected nil, got "
+					.. type(achDef.value)
+					.. "). Is this a data table?"
+			)
 		end
 
 		-- HACK: This is grotesque. So is all of the surrounding code.
@@ -244,9 +265,9 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 					achDef.unlockedAt = sAch[achDef.id].unlockedAt
 				else
 					warn(
-						"Achievment definition and saved data for "
-							.. achDef.id
-							.. "are different types. Ignoring saved data."
+						"invalid value for field 'value' (expected number, got "
+							.. type(sAch[achDef.id].value)
+							.. "). Ignoring saved data."
 					)
 				end
 			else
@@ -255,9 +276,9 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 					achDef.unlockedAt = sAch[achDef.id].unlockedAt
 				else
 					warn(
-						"Achievment definition and saved data for "
-							.. achDef.id
-							.. "are different types. Ignoring saved data."
+						"invalid value for field 'value' (expected boolean, got "
+							.. type(sAch[achDef.id].value)
+							.. "). Ignoring saved data."
 					)
 				end
 			end
@@ -273,7 +294,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	end
 
 	if numAchDef == 0 then
-		error("No achiemvent defs provided during init", 2)
+		error("bad argument #1 to 'init (expected valid achievement definitions, got none)", 2)
 	end
 end
 
@@ -308,7 +329,7 @@ function achievements.unlock(achievementID)
 	local ach = achievements.get(achievementID)
 
 	if ach.maxValue then
-		error('Achievement "' .. ach.id .. '" is numeric; use set() or increment()', 2)
+		error("attempt to unlock numeric achievement", 2)
 	end
 
 	if ach.value == true then
@@ -328,11 +349,11 @@ end
 function achievements.increment(achievementID, increment)
 	if increment then
 		if type(increment) ~= "number" then
-			error("Invalid increment type " .. type(increment) .. " (expected number)", 2)
+			error("bad argument #2 to 'increment' (expected number, got " .. type(increment) .. ")", 2)
 		end
 
 		if increment % 1 ~= 0 then
-			error("Invalid increment value (expected integer)", 2)
+			error("bad argument #2 to 'increment' (expected integer, got " .. increment .. ")", 2)
 		end
 	end
 	local inc = increment or 1
@@ -340,7 +361,7 @@ function achievements.increment(achievementID, increment)
 	local ach = achievements.get(achievementID)
 
 	if not ach.maxValue then
-		error('Achievement "' .. ach.id .. '" is boolean; use set() or unlock()', 2)
+		error("attempt to increment boolean achievement", 2)
 	end
 
 	if ach.value == ach.maxValue then
