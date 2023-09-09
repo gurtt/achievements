@@ -89,18 +89,6 @@ local function load(minimumSchemaVersion)
 		error("bad argument #1 to 'load' (expected number, got " .. type(minimumSchemaVersion) .. ")", 2)
 	end
 
-	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
-
-	if minimumVersion > CURRENT_SCHEMA_VERSION then
-		error(
-			"bad argument #1 to 'load' (expected <= "
-				.. CURRENT_SCHEMA_VERSION
-				.. ", got "
-				.. minimumVersion
-				.. "). Do you need to update your library?"
-		)
-	end
-
 	-- Check if saved data exists
 	local savedData = json.decodeFile(PRIVATE_ACHIEVEMENTS_PATH)
 
@@ -108,36 +96,7 @@ local function load(minimumSchemaVersion)
 		return
 	end
 
-	-- Check schema for saved data
-	if type(savedData["$schema"]) ~= "string" then
-		error("invalid type for field '$schema' (expected string, got " .. type(savedData["$schema"]) .. ")")
-	end
-
-	local savedDataVersion = tonumber(
-		string.match(
-			savedData["$schema"],
-			"https://raw%.githubusercontent%.com/gurtt/achievements/v(%d+)%.%d+%.%d+/achievements%.schema%.json"
-		)
-	)
-
-	if not savedDataVersion then
-		error("invalid format for field '$schema' ('" .. savedData["$schema"] .. "')")
-	end
-
-	if savedDataVersion < minimumVersion then
-		error("invalid version for saved data (expected >= " .. minimumVersion .. ", got " .. savedDataVersion .. ")")
-	end
-
-	-- Check contents of saved data
-	if not savedData.achievements then
-		error("saved data has no achievements")
-	end
-
-	if type(savedData.achievements) ~= "table" then
-		error("invalid type for field 'achievements' (expected table, got " .. type(savedData.achievements) .. ")")
-	end
-
-	migrate(savedData, minimumVersion)
+	migrate(savedData, minimumSchemaVersion)
 
 	-- Copy saved data to achievements
 	local sAch = {}
