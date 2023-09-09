@@ -111,6 +111,13 @@ describe("init", function()
 				unlockedDescription = rstring(),
 				maxValue = -19,
 			},
+			["the maxValue is zero"] = {
+				id = rstring(),
+				name = rstring(),
+				lockedDescription = rstring(),
+				unlockedDescription = rstring(),
+				maxValue = 0,
+			},
 			["the maxValue is a non-integer number"] = {
 				id = rstring(),
 				name = rstring(),
