@@ -1,0 +1,36 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"$schema": {
+			"type": "string",
+			"format": "uri"
+		},
+		"achievements": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "A unique ID for the achievement.",
+						"minLength": 1
+					},
+					"isGranted": {
+						"type": "boolean",
+						"description": "Whether or not the achievement has been granted.",
+						"default": false
+					}
+				},
+				"required": [
+					"id"
+				]
+			}
+		}
+	},
+	"required": [
+		"$schema",
+		"achievements"
+	]
+}
