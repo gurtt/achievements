@@ -7,7 +7,7 @@ local PRIVATE_ACHIEVEMENTS_PATH <const> = "achievements.json"
 ---Expected schema for achievements files.
 ---@type string
 local ACHIEVEMENT_DATA_SCHEMA <const> =
-	"https://raw.githubusercontent.com/gurtt/achievements/v1.0.0/achievements.schema.json"
+	"https://raw.githubusercontent.com/gurtt/pd-achievements/main/schema/achievements-v1.schema.json"
 
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
@@ -100,6 +100,17 @@ function achievements.init(achievementDefs)
 
 		achievements.kAchievements[achDef.id] = achDef
 	end
+end
+
+---Persist the current achievements data to storage.
+-- It's a good idea to call this during game lifecycle events like `playdate.gameWillTerminate()`, `playdate.deviceWillSleep()`, and `playdate.deviceWillLock()`.
+function achievements.save()
+	local savedData = {}
+
+	savedData["$schema"] = ACHIEVEMENT_DATA_SCHEMA
+	savedData.achievements = achievements.kAchievements
+
+	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, false, savedData)
 end
 
 return achievements
