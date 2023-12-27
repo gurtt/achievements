@@ -135,4 +135,21 @@ function achievements.grant(achievementID)
 	return true
 end
 
+---Check if the specified achievement has been granted.
+---@param achievementID string The ID of the achievement to check.
+---@return boolean isGranted Whether or not the achievement has been granted.
+function achievements.isGranted(achievementID)
+	if type(achievementID) ~= "string" then
+		error('Achievement ID "' .. achievementID .. '" is invalid', 2)
+	end
+
+	local ach = achievements.kAchievements[achievementID]
+
+	if not ach then
+		error('No achievement with ID "' .. achievementID .. '"', 2)
+	end
+
+	return ach.isGranted
+end
+
 return achievements
