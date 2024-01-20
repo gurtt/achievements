@@ -17,6 +17,7 @@ achievements = {}
 ---@field name string The user-facing name of the achievement.
 ---@field lockedDescription string The user-facing description of the requirements to unlock the achievement. Displayed when the player hasn't unlocked the achievement.
 ---@field unlockedDescription string The user-facing description of the requirements that unlocked the achievement. Displayed when the player hasn't unlocked the achievement.
+---@field value? boolean|integer The progress of the achievement.
 ---@field maxValue? number For achievements where `value` is a number, the value needed to consider the achievement granted.
 
 ---Loads saved achievement data for the game.
@@ -49,20 +50,36 @@ local function loadSavedData()
 	end
 
 	for _, ach in ipairs(savedData.achievements) do
-		if type(ach.id) ~= "string" or ach.id == "" then
-			error('Saved achievement has invalid ID"' .. ach.id .. '"')
+		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
+			if type(ach[key]) ~= "string" or ach[key] == "" then
+				error("Achievement data at index " .. i .. " has invalid " .. key .. ": " .. ach[key])
+			end
 		end
 
 		if achievements.kAchievements[ach.id] then
-			error('Duplicate achievement ID "' .. ach.id .. '"')
+			error('Duplicate achievement ID "' .. ach.id .. '"', 3)
 		end
 
-		if not ach.isGranted then
-			print('WARN: Achievement "' .. ach.id .. '" has no achievement data: isGranted. Is this a definition file?')
-		elseif type(ach.isGranted) ~= "boolean" then
-			error(
-				'Achievement "' .. ach.id .. '" has invalid data: isGranted with type "' .. type(ach.isGranted) .. '"'
-			)
+		if type(ach.maxValue) ~= "nil" then
+			if type(ach.maxValue) ~= "number" or ach.maxValue % 1 ~= 0 or ach.maxValue < 1 then
+				error('Achievement data "' .. ach.id .. '" has invalid maxValue ' .. ach.maxValue)
+			end
+
+			if type(ach.value) ~= "number" then
+				error(
+					'Achievement data"' .. ach.id .. '"has invalid value type' .. type(ach.value)(" (expected number)")
+				)
+			end
+		else
+			if type(ach.value) ~= "boolean" then
+				error(
+					'Achievement data"'
+						.. ach.id
+						.. '"has invalid value type'
+						.. type(ach.value)
+						.. " (expected boolean)"
+				)
+			end
 		end
 
 		achievements.kAchievements[ach.id] = ach
