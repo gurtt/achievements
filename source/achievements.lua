@@ -29,24 +29,15 @@ local function loadSavedData()
 	end
 
 	if savedData["$schema"] ~= ACHIEVEMENT_DATA_SCHEMA then
-		print(
-			'WARN: File at "'
-				.. PRIVATE_ACHIEVEMENTS_PATH
-				.. '" has unrecognised schema "'
-				.. savedData["$schema"]
-				.. '"'
-		)
-		return
+		error('File at "' .. PRIVATE_ACHIEVEMENTS_PATH .. '" has unrecognised schema "' .. savedData["$schema"] .. '"')
 	end
 
 	if not savedData.achievements then
-		print("WARN: Saved data has no achievements")
-		return
+		error("Saved data has no achievements")
 	end
 
 	if type(savedData.achievements) ~= "table" then
-		print("WARN: Saved data has invalid achievements data of type " .. type(savedData.achievements) .. '"')
-		return
+		error("Saved data has invalid achievements data of type " .. type(savedData.achievements) .. '"')
 	end
 
 	for _, ach in ipairs(savedData.achievements) do
@@ -57,7 +48,7 @@ local function loadSavedData()
 		end
 
 		if achievements.kAchievements[ach.id] then
-			error('Duplicate achievement ID "' .. ach.id .. '"', 3)
+			error('Duplicate achievement ID "' .. ach.id .. '"')
 		end
 
 		if type(ach.maxValue) ~= "nil" then
@@ -96,7 +87,11 @@ function achievements.init(achievementDefs)
 	end
 
 	-- Load achievements from saved data
-	loadSavedData()
+	xpcall(loadSavedData, function(msg)
+		warn("Error loading saved achievement data: " .. msg)
+		-- Clean up any achievements loaded before the error
+		achievements.kAchievements = {}
+	end)
 
 	-- Load achievements from definitions
 	achievements.kAchievements = {}
