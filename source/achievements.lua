@@ -7,14 +7,17 @@ local PRIVATE_ACHIEVEMENTS_PATH <const> = "achievements.json"
 ---Expected schema for achievements files.
 ---@type string
 local ACHIEVEMENT_DATA_SCHEMA <const> =
-	"https://raw.githubusercontent.com/gurtt/achievements/v1.0.0/achievements.schema.json"
+	"https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
 
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
 
 ---@class (exact) Achievement
 ---@field id string A unique ID for the achievement.
----@field isGranted? boolean Whether or not the achievement has been granted.
+---@field name string The user-facing name of the achievement.
+---@field lockedDescription string The user-facing description of the requirements to unlock the achievement. Displayed when the player hasn't unlocked the achievement.
+---@field unlockedDescription string The user-facing description of the requirements that unlocked the achievement. Displayed when the player hasn't unlocked the achievement.
+---@field maxValue? number For achievements where `value` is a number, the value needed to consider the achievement granted.
 
 ---Loads saved achievement data for the game.
 local function loadSavedData()
@@ -81,21 +84,27 @@ function achievements.init(achievementDefs)
 	-- Load achievements from definitions
 	achievements.kAchievements = {}
 	for _, achDef in ipairs(achievementDefs) do
-		if type(achDef.id) ~= "string" or achDef.id == "" then
-			error('Achievement has invalid ID "' .. achDef.id .. '"', 2)
+		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
+			if type(achDef[key]) ~= "string" or achDef[key] == "" then
+				error("Achievement definition at index " .. i .. " has invalid " .. key .. ": " .. achDef[key], 2)
+			end
 		end
 
 		if achievements.kAchievements[achDef.id] then
 			error('Duplicate achievement ID "' .. achDef.id .. '"', 2)
 		end
 
-		if type(achDef.isGranted) ~= "nil" then
-			print(
-				'WARN: Achievement definition "'
-					.. achDef.id
-					.. '" has achievement data: isGranted. Is this a data table?',
-				2
-			)
+		if type(achDef.maxValue) ~= "nil" then
+			if type(achDef.maxValue) ~= "number" or achDef % 1 ~= 0 or achDef < 1 then
+				error(
+					'Achievement definition "' .. achDef.id .. '" has invalid maxValue "' .. achDef.maxValue .. '"',
+					2
+				)
+			end
+		end
+
+		if achDef.value then
+			warn('Achievement definition "' .. achDef.id .. '" has a value. Is this a data table?')
 		end
 
 		achievements.kAchievements[achDef.id] = achDef
