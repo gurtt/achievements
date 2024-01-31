@@ -136,7 +136,7 @@ end
 
 ---Grant the specified achievement if it is a boolean achievement, or error.
 ---@param achievementID string The ID of the achievement to grant.
----@return boolean didChange Whether or not the status of the achievement was changed.
+---@return boolean didChange Whether or not the value of the achievement was changed.
 function achievements.grant(achievementID)
 	if type(achievementID) ~= "string" then
 		error('Achievement ID "' .. achievementID .. '" is invalid', 2)
@@ -170,15 +170,39 @@ function achievements.isGranted(achievementID)
 
 	local ach = achievements.kAchievements[achievementID]
 
+	if not ach then
+		error('No achievement with ID "' .. achievementID .. '"', 2)
+	end
+
 	if ach.maxValue then
 		return ach.value == ach.maxValue
 	end
+
+	return ach.value
+end
+
+function achievements.set(achievementID, value)
+	if type(achievementID) ~= "string" then
+		error('Achievement ID "' .. achievementID .. '" is invalid', 2)
+	end
+
+	local ach = achievements.kAchievements[achievementID]
 
 	if not ach then
 		error('No achievement with ID "' .. achievementID .. '"', 2)
 	end
 
-	return ach.value
+	if ach.maxValue then
+		if type(value) ~= "number" then
+			error('Invalid value type for achievement "' .. ach.id .. '" (expected number)', 2)
+		end
+
+		ach.value = math.min(value, ach.maxValue)
+	else
+		if type(value) ~= "boolean" then
+			error('Invalid value type for achievement "' .. ach.id .. '" (expected number)', 2)
+		end
+	end
 end
 
 return achievements
