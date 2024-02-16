@@ -7,7 +7,7 @@ local PRIVATE_ACHIEVEMENTS_PATH <const> = "achievements.json"
 ---Expected schema for achievements files.
 ---@type string
 local ACHIEVEMENT_DATA_SCHEMA <const> =
-	"https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
+	"https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements-v1.schema.json"
 
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
@@ -134,7 +134,8 @@ function achievements.save()
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, false, savedData)
 end
 
----Grant the specified achievement if it is a boolean achievement, or error.
+---Grant the specified achievement if it is a boolean achievement.
+-- This only works for boolean achievements. For numeric achievements, use `set` or `increment`.
 ---@param achievementID string The ID of the achievement to grant.
 ---@return boolean # Whether or not the value of the achievement was changed.
 function achievements.grant(achievementID)
@@ -149,7 +150,7 @@ function achievements.grant(achievementID)
 	end
 
 	if ach.maxValue then
-		error('Achievement "' .. ach.id .. '" is numeric; use set()', 2)
+		error('Achievement "' .. ach.id .. '" is numeric; use set() or increment()', 2)
 	end
 
 	if ach.value == false then
@@ -161,6 +162,7 @@ function achievements.grant(achievementID)
 end
 
 ---Increments the specified achievement by some amount.
+-- This only works for numeric achievements. For boolean achievements, use `set` or `grant`.
 ---@param achievementID string The ID of the achievement to increment.
 ---@param increment? number The amount to increment by. Default is 1.
 ---@return boolean # Whether or not the value of the achievement was changed.
