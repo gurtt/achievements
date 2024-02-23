@@ -45,6 +45,18 @@ end
 ---Loads saved achievement data for the game.
 ---@param minimumSchemaVersion? number The earliest version of the achievements data schema to try migrating from. If unspecified, migration is disabled.
 local function loadSavedData(minimumSchemaVersion)
+	if minimumSchemaVersion and type(minimumSchemaVersion) ~= "number" then
+		error("Invalid minimum schema number type " .. type(minimumSchemaVersion) .. " (expected number)")
+	end
+
+	if minimumSchemaVersion > CURRENT_SCHEMA_VERSION then
+		error(
+			"Minimum schema version is newer than the current schema version ("
+				.. CURRENT_SCHEMA_VERSION
+				.. "). Do you need to update your library?"
+		)
+	end
+
 	local savedData = json.decodeFile(PRIVATE_ACHIEVEMENTS_PATH)
 
 	if not savedData then
@@ -54,8 +66,6 @@ local function loadSavedData(minimumSchemaVersion)
 	if type(savedData["$schema"]) ~= "string" then
 		error("Invalid schema type " .. type(savedData["$schema"]) .. " (expected string)")
 	end
-
-	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
 
 	local savedDataVersion = tonumber(
 		string.match(
@@ -67,6 +77,8 @@ local function loadSavedData(minimumSchemaVersion)
 	if not savedDataVersion then
 		error('Could not determine schema version from schema "' .. savedData["$schema"] .. '"')
 	end
+
+	local minimumVersion = minimumSchemaVersion or CURRENT_SCHEMA_VERSION
 
 	if savedDataVersion < minimumVersion then
 		error(
