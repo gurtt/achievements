@@ -23,6 +23,7 @@ describe("init", function()
 		local achDefs = {
 			["schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json",
 			["achievements"] = {
+				-- valid with values
 				{
 					id = "pickup-wood",
 					name = "Getting Wood",
@@ -38,13 +39,48 @@ describe("init", function()
 					maxValue = 4,
 					value = 3,
 				},
+				-- invalid with values
+				{
+					id = "craft-dispenser",
+					name = "Dispense with This",
+					lockedDescription = "Construct a dispenser.",
+					unlockedDescription = "Constructed a dispenser.",
+					value = 64,
+				},
+				{
+					id = "playtime-100-days",
+					name = "Passing the Time",
+					lockedDescription = "Play for 100 days.",
+					unlockedDescription = "Played for 100 days.",
+					maxValue = 100,
+					value = 9001,
+				},
+				{
+					id = "craft-porkchop",
+					name = "Pork Chop",
+					lockedDescription = "Cook and eat a pork chop.",
+					unlockedDescription = "Cooked and ate a pork chop.",
+					value = { cooked = true, ate = 0 },
+				},
+				{
+					id = "pickup-emeralds",
+					name = "The Haggler",
+					lockedDescription = "Acquire or spend 30 Emeralds by trading with villagers.",
+					unlockedDescription = "Acquired or spent 30 Emeralds by trading with villagers.",
+					maxValue = 30,
+					value = { villager = 300, wandering_trader = 24 },
+				},
 			},
 		}
 
 		achievements.init(achDefs)
 
-		assert.is.False(achievements.get("pickup-wood").value)
-		assert.is.False(achievements.get("craft-all-tools").value ~= 0)
+		assert(achievements.get("pickup-wood").value == false)
+		assert(achievements.get("craft-all-tools").value == 0)
+		assert(achievements.get("craft-dispenser").value == false)
+		assert(achievements.get("playtime-100-days").value == 0)
+		assert(achievements.get("craft-porkchop").value == false)
+		assert(achievements.get("pickup-emeralds").value == 0)
 	end)
 
 	it("should make achievements available after init", function()
