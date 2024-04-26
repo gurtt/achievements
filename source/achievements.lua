@@ -23,6 +23,9 @@ achievements = {}
 ---@field value? boolean|integer The progress of the achievement.
 ---@field maxValue? number For achievements where `value` is a number, the value needed to consider the achievement granted.
 
+---@class (exact) AchievementDefinitions
+---@field achievements Achievement[]
+
 ---Migrate data from an old schema version to the current version.
 ---@param data any The decoded JSON data of the old version.
 ---@param version any The determined version of `data`.
@@ -148,7 +151,7 @@ end
 ---Set up the achievements system.
 -- Loads any existing achievements data from the game directory.
 -- The achievement definitions you pass are authoritative; if saved data exists for an achievement you don't define here, that data will be removed next time you call `save()`.
----@param achievementDefs Achievement[] The current achievements definitions for the game.
+---@param achievementDefs AchievementDefinitions The current achievements definitions for the game.
 ---@param minimumSchemaVersion? number The minimum supported version of the achievements schema to support. You only need to specify this if you update your game to use a new version of the achievements system.
 function achievements.init(achievementDefs, minimumSchemaVersion)
 	if achievementDefs == nil then
