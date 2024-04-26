@@ -2,15 +2,15 @@
 
 ---Path where the achievements data for the game is saved.
 ---@type string
-local PRIVATE_ACHIEVEMENTS_PATH <const> = "achievements.json"
+local PRIVATE_ACHIEVEMENTS_PATH = "achievements.json"
 
 ---The current achievements data schema version.
 ---@type number
-local CURRENT_SCHEMA_VERSION <const> = 2
+local CURRENT_SCHEMA_VERSION = 2
 
 ---The URL for the current schema definition.
 ---@type string
-local SCHEMA_URL <const> = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
+local SCHEMA_URL = "https://raw.githubusercontent.com/gurtt/achievements/v2.0.0/achievements.schema.json"
 
 ---@diagnostic disable-next-line: lowercase-global
 achievements = {}
@@ -163,8 +163,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	end, minimumSchemaVersion)
 
 	-- Load achievements from definitions
-	achievements.kAchievements = {}
-	for _, achDef in ipairs(achievementDefs) do
+	for _, achDef in ipairs(achievementDefs.achievements) do
 		for i, key in ipairs({ "id", "name", "lockedDescription", "unlockedDescription" }) do
 			if type(achDef[key]) ~= "string" or achDef[key] == "" then
 				error("Achievement definition at index " .. i .. " has invalid " .. key .. ": " .. achDef[key], 2)
@@ -172,11 +171,11 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 		end
 
 		if achievements.kAchievements[achDef.id] then
-			error('Duplicate achievement ID "' .. achDef.id .. '"', 2)
+			break
 		end
 
 		if type(achDef.maxValue) ~= "nil" then
-			if type(achDef.maxValue) ~= "number" or achDef % 1 ~= 0 or achDef < 1 then
+			if type(achDef.maxValue) ~= "number" or achDef.maxValue % 1 ~= 0 or achDef.maxValue < 1 then
 				error(
 					'Achievement definition "' .. achDef.id .. '" has invalid maxValue "' .. achDef.maxValue .. '"',
 					2
@@ -186,6 +185,12 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 
 		if achDef.value then
 			warn('Achievement definition "' .. achDef.id .. '" has a value. Is this a data table?')
+		end
+
+		if achDef.maxValue then
+			achDef.value = 0
+		else
+			achDef.value = false
 		end
 
 		achievements.kAchievements[achDef.id] = achDef
