@@ -163,10 +163,85 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	if numAchDef == 0 then
 		error("bad argument #1 to 'init (expected valid achievement definitions, got none)", 2)
 	end
+
+	local metadata = playdate.metadata
+
+	-- load metadata from definitions or from pdxinfo. The idea is that the built-in metadata should be good, but this allows devs to override it if needed for some reason.
+	for _, field in ipairs({ "name", "author", "description", "bundleID", "version" }) do
+		if achievementDefs[field] ~= nil then -- try to use the field from definitions
+			if type(achievementDefs[field]) ~= "string" then
+				warn(
+					"invalid type for field '"
+						.. field
+						.. "' in achievement definitions (expected string, got "
+						.. type(achievementDefs[field])
+						.. ")"
+				)
+				goto metadata
+			end
+
+			if achievementDefs[field] == "" then
+				warn("invalid value for field '" .. field .. "' in achievement definitions (expected non-empty string)")
+				goto metadata
+			end
+
+			achievements[field] = achievementDefs[field]
+			goto continue
+		end
+
+		::metadata::
+		if metadata[field] ~= nil then -- try to use the metadata field
+			if metadata[field] == "" then
+				warn("invalid value for field '" .. field .. "' in metadata (expected non-empty string)")
+			end
+
+			achievements[field] = metadata[field]
+			goto continue
+		end
+
+		-- there was nothing suitable in either the definitions or the base metadata :(
+		error("no valid value available for field '" .. field .. "'", 2)
+
+		::continue::
+	end
+
+	-- duplicates work as above but for buildNumber, which should be a number
+	local build = achievementDefs.buildNumber
+	if build ~= nil then -- try to use the field from definitions
+		if type(build) ~= "number" then
+			warn(
+				"invalid type for field 'buildNumber' in achievement metadata (expected number, got "
+					.. type(build)
+					.. ")"
+			)
+			goto bmetadata
+		end
+
+		if build % 1 ~= 0 or build < 1 then
+			warn(
+				"invalid value for field 'buildNumber' in achievement metadata (expected positive integer, got "
+					.. build
+					.. ")"
+			)
+			goto bmetadata
+		end
+
+		achievements.buildNumber = build
+		goto bcontinue
+	end
+
+	::bmetadata::
+	if metadata.buildNumber ~= nil then -- try to use the metadata field
+		achievements.buildNumber = metadata.buildNumber
+	end
+
+	error("no valid value available for field 'buildNumber'", 2)
+
+	::bcontinue::
 end
 
 function achievements.save()
-	storage.save(achievements.kAchievements)
+	storage.save(achievements)
 end
 ---Grant the specified achievement if it is a boolean achievement.
 -- This only works for boolean achievements. For numeric achievements, use `set` or `increment`.

@@ -96,6 +96,10 @@ function storage.save(achData)
 		table.insert(savedData.achievements, ach)
 	end
 
+	for _, field in ipairs({ "name", "author", "description", "bundleID", "version", "buildNumber" }) do
+		savedData[field] = achData[field]
+	end
+
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, savedData)
 end
 
