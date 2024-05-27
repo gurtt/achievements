@@ -37,9 +37,9 @@ describe("save", function()
 		booleanAch.value = true
 		numericAch.value = 5
 
-		local localSavedAchData = json.decodeFile("achievements.json").achievements
+		local localSavedAchData = json.decodeFile("achievements.json")
 		local sharedSavedAchData =
-			json.decodeFile("/Shared/Data/" .. playdate.metadata.bundleID .. "/achievements.json").achievements
+			json.decodeFile("/Shared/Data/" .. playdate.metadata.bundleID .. "/achievements.json")
 
 		local function contains(table, subject)
 			-- using ipairs because saved data shouldn't be keyed anymore
@@ -52,10 +52,12 @@ describe("save", function()
 			return false
 		end
 
-		assert.is.True(contains(localSavedAchData, booleanAch))
-		assert.is.True(contains(localSavedAchData, numericAch))
-		assert.is.True(contains(sharedSavedAchData, booleanAch))
-		assert.is.True(contains(sharedSavedAchData, numericAch))
+		assert.is.True(contains(localSavedAchData.achievements, booleanAch))
+		assert.is.True(contains(localSavedAchData.achievements, numericAch))
+		assert.is.same(localSavedAchData.meta, playdate.meta)
+		assert.is.True(contains(sharedSavedAchData.achievements, booleanAch))
+		assert.is.True(contains(sharedSavedAchData.achievements, numericAch))
+		assert.is.same(sharedSavedAchData.meta, playdate.meta)
 	end)
 
 	it("overrides old saved data", function()

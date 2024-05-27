@@ -99,11 +99,11 @@ function storage.save(achData)
 	end
 
 	for _, field in ipairs({ "name", "author", "description", "bundleID", "version", "buildNumber" }) do
-		savedData[field] = achData[field]
+		savedData[field] = achData.meta[field]
 	end
 
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME, savedData)
-	json.encodeToFile(SHARED_ACHIEVEMENTS_PATH .. achData.bundleID .. "/" .. ACHIEVEMENTS_FILE_NAME, savedData)
+	json.encodeToFile(SHARED_ACHIEVEMENTS_PATH .. achData.meta.bundleID .. "/" .. ACHIEVEMENTS_FILE_NAME, savedData)
 end
 
 return storage

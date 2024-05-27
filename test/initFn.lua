@@ -360,4 +360,58 @@ describe("init", function()
 			achievements.init(achDefs)
 		end)
 	end)
+
+	it("should load metadata from playdate.meta if no overrides are defined", function()
+		playdateEnv.init({
+			name = rstring(),
+			author = rstring(),
+			description = rstring(),
+			bundleID = rstring(),
+			version = rstring(),
+			buildNumber = math.random(100),
+		})
+
+		local ach = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+		}
+		local achDef = defs.generate({ ach })
+		achievements.init(achDef)
+
+		for _, field in ipairs({ "name", "author", "description", "bundleID", "version", "buildNumber" }) do
+			assert.is.same(playdate.metadata[field], achievements.meta[field])
+		end
+	end)
+
+	it("should load metadata from overries when defined", function()
+		-- also tests for mixed definiton locations
+		playdateEnv.init({
+			name = rstring(),
+			author = rstring(),
+			description = rstring(),
+			bundleID = rstring(),
+			version = rstring(),
+			buildNumber = math.random(100),
+		})
+
+		local ach = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+		}
+		local achDef = defs.generate({ ach })
+		achDef.name = rstring()
+		achDef.buildNumber = math.random(100)
+		achievements.init(achDef)
+
+		for _, field in ipairs({ "author", "description", "bundleID", "version" }) do
+			assert.is.same(playdate.metadata[field], achievements.meta[field])
+		end
+
+		assert.is.same(achDef.name, achievements.meta.name)
+		assert.is.same(achDef.buildNumber, achievements.meta.buildNumber)
+	end)
 end)

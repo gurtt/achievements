@@ -166,6 +166,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 
 	local metadata = playdate.metadata
 
+	achievements.meta = {}
 	-- load metadata from definitions or from pdxinfo. The idea is that the built-in metadata should be good, but this allows devs to override it if needed for some reason.
 	-- TODO: Some of these fields (description?) should be optional (maybe)
 	for _, field in ipairs({ "name", "author", "description", "bundleID", "version" }) do
@@ -186,7 +187,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 				goto useMetadata
 			end
 
-			achievements[field] = achievementDefs[field]
+			achievements.meta[field] = achievementDefs[field]
 			goto continue
 		end
 
@@ -196,7 +197,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 				warn("invalid value for field '" .. field .. "' in metadata (expected non-empty string)")
 			end
 
-			achievements[field] = metadata[field]
+			achievements.meta[field] = metadata[field]
 			goto continue
 		end
 
@@ -228,13 +229,13 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 			goto bmetadata
 		end
 
-		achievements.buildNumber = build
+		achievements.meta.buildNumber = build
 		goto bcontinue
 	end
 
 	::bmetadata::
 	if metadata.buildNumber ~= nil then -- try to use the metadata field
-		achievements.buildNumber = metadata.buildNumber
+		achievements.meta.buildNumber = metadata.buildNumber
 		goto bcontinue
 	end
 
