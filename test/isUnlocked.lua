@@ -1,8 +1,10 @@
 local defs = require("test.support.defs")
+local playdateEnv = require("test.support.playdateEnv")
 local rstring = require("test.support.rstring")
 
 describe("isUnlocked", function()
 	before_each(function()
+		playdateEnv.init()
 		_G.achievements = require("achievements")
 
 		_G.booleanAchId = rstring()
@@ -26,6 +28,7 @@ describe("isUnlocked", function()
 	end)
 
 	after_each(function()
+		playdateEnv.unInit()
 		_G.achievements = nil
 		_G.booleanAchId = nil
 		_G.numericAchId = nil

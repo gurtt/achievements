@@ -1,15 +1,16 @@
 local defs = require("test.support.defs")
+local playdateEnv = require("test.support.playdateEnv")
 local rstring = require("test.support.rstring")
 
 describe("init", function()
 	before_each(function()
+		playdateEnv.init()
 		_G.achievements = require("achievements")
-		_G.json = require("test.support.json")
 	end)
 
 	after_each(function()
+		playdateEnv.unInit()
 		_G.achievements = nil
-		_G.json = nil
 	end)
 
 	it("should load a valid achievement definition without error", function()

@@ -15,7 +15,7 @@ function storage.load(minimumSchemaVersion)
 	end
 
 	-- Check if saved data exists
-	local savedData = json.decodeFile(PRIVATE_ACHIEVEMENTS_PATH)
+	local savedData = json.decodeFile(PRIVATE_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME)
 
 	if not savedData then
 		return
@@ -94,8 +94,8 @@ function storage.save(achData)
 
 	savedData["$schema"] = SCHEMA_URL
 	savedData.achievements = {}
-	for _, ach in pairs(achData) do
-		savedData.insert(savedData.achievements, ach)
+	for _, ach in pairs(achData.kAchievements) do
+		table.insert(savedData.achievements, ach)
 	end
 
 	for _, field in ipairs({ "name", "author", "description", "bundleID", "version", "buildNumber" }) do
@@ -103,7 +103,7 @@ function storage.save(achData)
 	end
 
 	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME, savedData)
-	json.encodeToFile(SHARED_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME, savedData)
+	json.encodeToFile(SHARED_ACHIEVEMENTS_PATH .. achData.bundleID .. "/" .. ACHIEVEMENTS_FILE_NAME, savedData)
 end
 
 return storage

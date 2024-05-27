@@ -1,8 +1,10 @@
 local defs = require("defs")
+local playdateEnv = require("test.support.playdateEnv")
 local rstring = require("rstring")
 
 describe("get", function()
 	before_each(function()
+		playdateEnv.init()
 		_G.achievements = require("achievements")
 
 		_G.ach = {
@@ -18,6 +20,7 @@ describe("get", function()
 	end)
 
 	after_each(function()
+		playdateEnv.unInit()
 		_G.achievements = nil
 		_G.ach = nil
 	end)

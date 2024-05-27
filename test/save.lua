@@ -1,15 +1,16 @@
 local defs = require("test.support.defs")
+local playdateEnv = require("test.support.playdateEnv")
 local rstring = require("test.support.rstring")
 
 describe("save", function()
 	before_each(function()
+		playdateEnv.init()
 		_G.achievements = require("achievements")
-		_G.json = require("test.support.json")
 	end)
 
 	after_each(function()
+		playdateEnv.unInit()
 		_G.achievements = nil
-		_G.json = nil
 	end)
 
 	it("saves achievements when called", function()
@@ -36,7 +37,9 @@ describe("save", function()
 		booleanAch.value = true
 		numericAch.value = 5
 
-		local savedAchData = json.decodeFile("achievements.json").achievements
+		local localSavedAchData = json.decodeFile("achievements.json").achievements
+		local sharedSavedAchData =
+			json.decodeFile("/Shared/Data/" .. playdate.metadata.bundleID .. "/achievements.json").achievements
 
 		local function contains(table, subject)
 			-- using ipairs because saved data shouldn't be keyed anymore
@@ -48,7 +51,10 @@ describe("save", function()
 			end
 			return false
 		end
-		assert.is.True(contains(savedAchData, booleanAch))
-		assert.is.True(contains(savedAchData, numericAch))
+
+		assert.is.True(contains(localSavedAchData, booleanAch))
+		assert.is.True(contains(localSavedAchData, numericAch))
+		assert.is.True(contains(sharedSavedAchData, booleanAch))
+		assert.is.True(contains(sharedSavedAchData, numericAch))
 	end)
 end)

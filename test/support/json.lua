@@ -1,3 +1,5 @@
+local deepCopy = require("deepCopy")
+
 local json = {}
 
 json.files = {}
@@ -14,7 +16,7 @@ end
 ---@param path string
 ---@param table table
 function json.encodeToFile(path, table)
-	json.files[path] = table
+	json.files[path] = deepCopy(table)
 end
 
 return json

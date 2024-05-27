@@ -178,19 +178,19 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 						.. type(achievementDefs[field])
 						.. ")"
 				)
-				goto metadata
+				goto useMetadata
 			end
 
 			if achievementDefs[field] == "" then
 				warn("invalid value for field '" .. field .. "' in achievement definitions (expected non-empty string)")
-				goto metadata
+				goto useMetadata
 			end
 
 			achievements[field] = achievementDefs[field]
 			goto continue
 		end
 
-		::metadata::
+		::useMetadata::
 		if metadata[field] ~= nil then -- try to use the metadata field
 			if metadata[field] == "" then
 				warn("invalid value for field '" .. field .. "' in metadata (expected non-empty string)")
@@ -208,6 +208,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 
 	-- duplicates work as above but for buildNumber, which should be a number
 	local build = achievementDefs.buildNumber
+
 	if build ~= nil then -- try to use the field from definitions
 		if type(build) ~= "number" then
 			warn(
@@ -234,6 +235,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	::bmetadata::
 	if metadata.buildNumber ~= nil then -- try to use the metadata field
 		achievements.buildNumber = metadata.buildNumber
+		goto bcontinue
 	end
 
 	error("no valid value available for field 'buildNumber'", 2)
