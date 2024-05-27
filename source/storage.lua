@@ -1,7 +1,9 @@
 local deepCopy = require("deepCopy")
 local migrate = require("migration")
 
-local PRIVATE_ACHIEVEMENTS_PATH = "achievements.json"
+local ACHIEVEMENTS_FILE_NAME = "achievements.json"
+local PRIVATE_ACHIEVEMENTS_PATH = ""
+local SHARED_ACHIEVEMENTS_PATH = "/Shared/Data/"
 local SCHEMA_URL = "https://raw.githubusercontent.com/gurtt/achievements/v3.0.0/achievements.schema.json"
 
 local storage = {}
@@ -93,14 +95,15 @@ function storage.save(achData)
 	savedData["$schema"] = SCHEMA_URL
 	savedData.achievements = {}
 	for _, ach in pairs(achData) do
-		table.insert(savedData.achievements, ach)
+		savedData.insert(savedData.achievements, ach)
 	end
 
 	for _, field in ipairs({ "name", "author", "description", "bundleID", "version", "buildNumber" }) do
 		savedData[field] = achData[field]
 	end
 
-	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH, savedData)
+	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME, savedData)
+	json.encodeToFile(SHARED_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME, savedData)
 end
 
 return storage

@@ -167,6 +167,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	local metadata = playdate.metadata
 
 	-- load metadata from definitions or from pdxinfo. The idea is that the built-in metadata should be good, but this allows devs to override it if needed for some reason.
+	-- TODO: Some of these fields (description?) should be optional (maybe)
 	for _, field in ipairs({ "name", "author", "description", "bundleID", "version" }) do
 		if achievementDefs[field] ~= nil then -- try to use the field from definitions
 			if type(achievementDefs[field]) ~= "string" then
