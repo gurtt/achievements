@@ -102,8 +102,18 @@ function storage.save(achData)
 		savedData[field] = achData.meta[field]
 	end
 
-	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME, savedData)
 	json.encodeToFile(SHARED_ACHIEVEMENTS_PATH .. achData.meta.bundleID .. "/" .. ACHIEVEMENTS_FILE_NAME, savedData)
+
+	savedData = {}
+
+	savedData["$schema"] = SCHEMA_URL
+	savedData.achievements = {}
+	for _, ach in pairs(achData.kAchievements) do
+		table.insert(savedData.achievements, { id = ach.id, value = ach.value, unlockedAt = ach.unlockedAt })
+	end
+	savedData.buildNumber = achData.meta.buildNumber
+
+	json.encodeToFile(PRIVATE_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME, savedData)
 end
 
 return storage
