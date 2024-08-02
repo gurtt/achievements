@@ -1,18 +1,13 @@
 local deepCopy = require("deepCopy")
-local migrate = require("migration")
 
 local ACHIEVEMENTS_FILE_NAME = "achievements.json"
 local PRIVATE_ACHIEVEMENTS_PATH = ""
 local SHARED_ACHIEVEMENTS_PATH = "/Shared/Data/"
-local SCHEMA_URL = "https://raw.githubusercontent.com/gurtt/achievements/v3.0.0/achievements.schema.json"
+local SCHEMA_URL = "https://raw.githubusercontent.com/gurtt/achievements/v1.0.0/achievements.schema.json"
 
 local storage = {}
 ---Loads saved achievement data for the game.
----@param minimumSchemaVersion? number The earliest version of the achievements data schema to try migrating from. If unspecified, migration is disabled.
-function storage.load(minimumSchemaVersion)
-	if minimumSchemaVersion and type(minimumSchemaVersion) ~= "number" then
-		error("bad argument #1 to 'load' (expected number, got " .. type(minimumSchemaVersion) .. ")", 2)
-	end
+function storage.load()
 
 	-- Check if saved data exists
 	local savedData = json.decodeFile(PRIVATE_ACHIEVEMENTS_PATH .. ACHIEVEMENTS_FILE_NAME)
@@ -20,8 +15,6 @@ function storage.load(minimumSchemaVersion)
 	if not savedData then
 		return
 	end
-
-	migrate(savedData, minimumSchemaVersion)
 
 	-- Copy saved data to achievements
 	local sAch = {}

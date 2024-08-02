@@ -9,7 +9,7 @@ local defs = {}
 function defs.generate(defTable)
 	local defCollection = {}
 
-	defCollection["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v3.0.0/achievements.schema.json"
+	defCollection["$schema"] = "https://raw.githubusercontent.com/gurtt/achievements/v1.0.0/achievements.schema.json"
 
 	defCollection.achievements = {}
 	for _, def in pairs(defTable) do

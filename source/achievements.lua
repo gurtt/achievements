@@ -74,8 +74,7 @@ end
 -- Loads any existing achievements data from the game directory.
 -- The achievement definitions you pass are authoritative; if saved data exists for an achievement you don't define here, that data will be removed next time you call `save()`.
 ---@param achievementDefs AchievementDefinitions The current achievements definitions for the game.
----@param minimumSchemaVersion? number The minimum supported version of the achievements schema to support. You only need to specify this if you update your game to use a new version of the achievements system.
-function achievements.init(achievementDefs, minimumSchemaVersion)
+function achievements.init(achievementDefs)
 	if type(achievementDefs) ~= "table" then
 		error("bad argument #1 to 'init' (expected table, got " .. type(achievementDefs) .. ")", 2)
 	end
@@ -89,7 +88,7 @@ function achievements.init(achievementDefs, minimumSchemaVersion)
 	-- Load achievements from saved data
 	local _, sAch = xpcall(storage.load, function(msg)
 		warn("Error loading saved achievement data: " .. msg)
-	end, minimumSchemaVersion)
+	end)
 
 	achievements.kAchievements = {}
 
