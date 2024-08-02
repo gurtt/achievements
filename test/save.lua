@@ -121,4 +121,26 @@ describe("save", function()
 		assert.is.True(contains(sharedSavedAchData, booleanAch))
 		assert.is.True(contains(sharedSavedAchData, numericAch))
 	end)
+
+	it("saves hidden flag data", function ()
+		local hiddenAch = {
+			id = rstring(),
+			name = rstring(),
+			lockedDescription = rstring(),
+			unlockedDescription = rstring(),
+			hidden = true,
+		}
+		local achDefs = defs.generate({ hiddenAch })
+		achievements.init(achDefs)
+
+		achievements.set(hiddenAch.id, true)
+		achievements.save()
+
+		local localSavedAchData = json.decodeFile("achievements.json").achievements[1]
+		local sharedSavedAchData =
+			json.decodeFile("/Shared/Data/" .. playdate.metadata.bundleID .. "/achievements.json").achievements[1]
+		
+		assert.is.True(localSavedAchData.hidden)
+		assert.is.True(sharedSavedAchData.hidden)
+	end)
 end)

@@ -67,6 +67,10 @@
 							"integer"
 						],
 						"description": "The progress of the achievement."
+					},
+					"hidden": {
+						"type": "boolean",
+						"description": "Whether the achievement should be hidden while it is locked."
 					}
 				},
 				"if": {

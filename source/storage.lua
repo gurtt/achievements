@@ -109,7 +109,7 @@ function storage.save(achData)
 	savedData["$schema"] = SCHEMA_URL
 	savedData.achievements = {}
 	for _, ach in pairs(achData.kAchievements) do
-		table.insert(savedData.achievements, { id = ach.id, value = ach.value, unlockedAt = ach.unlockedAt })
+		table.insert(savedData.achievements, { id = ach.id, value = ach.value, unlockedAt = ach.unlockedAt, hidden = ach.hidden })
 	end
 	savedData.buildNumber = achData.meta.buildNumber
 
