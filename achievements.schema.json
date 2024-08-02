@@ -106,8 +106,7 @@
 						"name",
 						"lockedDescription",
 						"unlockedDescription",
-						"value",
-						"maxValue"
+						"value"
 					]
 				}
 			}
